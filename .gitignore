@@ -3,3 +3,6 @@
 
 # Ignore Python virtual environment
 env/
+
+# Ignore folder for jupyter notebooks
+notebooks/
