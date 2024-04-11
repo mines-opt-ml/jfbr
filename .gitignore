@@ -9,4 +9,4 @@ notebooks/*
 data/*
 
 # Ignore __pycache__ folder
-__pycache__
+__pycache__/
