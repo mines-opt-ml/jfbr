@@ -6,3 +6,9 @@ env/
 
 # Ignore folder for jupyter notebooks
 notebooks/
+
+# Ignore folder for data
+data/
+
+# Ignore __pycache__ folder
+__pycache__/
