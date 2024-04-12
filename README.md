@@ -22,10 +22,9 @@ venv\Scripts\activate  # On Windows
 
 ### Install the Package
 
-Install the package in editable mode with:
+Install the required packages:
 
 ```bash
-pip install -e .
+pip install -r requirements.txt
 ```
 
-This command allows you to modify the project and see changes without reinstalling it.

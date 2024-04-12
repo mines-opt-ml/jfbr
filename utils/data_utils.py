@@ -1,5 +1,4 @@
 import torch
-from ..models import simple_net
 
 def synthesize_data(Network, input_dim, output_dim, dataset_size):
     net = Network(input_dim, output_dim)
