@@ -1,6 +1,3 @@
-# Your Project Name
-
-This project demonstrates a simple setup for a Python package using `venv` and `setuptools`.
 
 ## Installation
 
@@ -18,8 +15,8 @@ cd your-repository
 Create and activate a virtual environment:
 
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Unix/macOS
+python -m venv env
+source env/bin/activate  # On Unix/macOS
 venv\Scripts\activate  # On Windows
 ```
 
@@ -32,11 +29,3 @@ pip install -e .
 ```
 
 This command allows you to modify the project and see changes without reinstalling it.
-
-## Usage
-
-You can now import and use the package as needed in your Python scripts:
-
-```python
-from your_package_name import some_module
-```
