@@ -11,3 +11,6 @@ __pycache__/
 notebooks/*
 data/*
 
+# Ignore folder created by setup.py
+setup.egg-info/
+
