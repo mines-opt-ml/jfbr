@@ -15,7 +15,7 @@ batch_size = 10
 # Synthesize data 
 data_utils.synthesize_data(models.simple_net.SimpleNet, input_dim, output_dim, dataset_size)
 
-# Instantiate the model
+# Instantiate the model and set the optimizer and loss function
 net = models.simple_net.SimpleNet(input_dim, output_dim)
 net.optimizer = torch.optim.SGD(net.parameters(), lr=0.01)
 net.criterion = torch.nn.MSELoss()
