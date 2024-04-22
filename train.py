@@ -1,3 +1,4 @@
+import models.mon_net
 import models.simple_net
 import torch
 import models
@@ -8,12 +9,13 @@ import matplotlib.pyplot as plt
 input_dim = 10
 output_dim = 20
 dataset_size = 1000
-model = models.simple_net.SimpleNet(input_dim, output_dim)
+Model = models.mon_net.MonNet
+model = Model(input_dim, output_dim)
 max_epochs = 10
 batch_size = 10
 
 # Synthesize data 
-data_utils.synthesize_data(models.simple_net.SimpleNet, input_dim, output_dim, dataset_size)
+data_utils.synthesize_data(Model, input_dim, output_dim, dataset_size)
 
 # Instantiate the model and set the optimizer and loss function
 net = models.simple_net.SimpleNet(input_dim, output_dim)

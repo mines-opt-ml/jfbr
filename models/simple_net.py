@@ -8,6 +8,9 @@ class SimpleNet(torch.nn.Module):
         self.fc1 = nn.Linear(input_dim, output_dim)
         self.fc2 = nn.Linear(output_dim, output_dim)
 
+    def name(self):
+        return 'SimpleNet'
+
     def forward(self, X):
         X = self.fc1(X)
         X = self.fc2(X)
