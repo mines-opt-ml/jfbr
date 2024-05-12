@@ -20,13 +20,15 @@ batch_size = 100
 lr = 0.01
 # TODO: fix generator with random seed and add as argument to random functions for reproducibility
 
-# Synthesize data 
+# Synthesize and split data, and instantiate data loaders
 data_utils.synthesize_data(Model, input_dim, output_dim, dataset_size, 'data/dataset.pth')
 dataset_dict = torch.load('data/dataset.pth')
 X = dataset_dict['X']
 Y = dataset_dict['Y']
-X_train, X_test = torch.utils.data.random_split(X, [train_size, test_size])
-Y_train, Y_test = torch.utils.data.random_split(Y, [train_size, test_size])
+dataset = torch.utils.data.TensorDataset(X, Y)
+train_dataset, test_dataset = torch.utils.data.random_split(dataset, [train_size, test_size])
+train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=dataset_size, shuffle=False)
 
 # Instantiate the model and set the optimizer and loss function
 net = Model(input_dim, output_dim)
@@ -39,23 +41,26 @@ train_epochs = []
 train_losses = []
 test_epochs = []
 test_losses = []
+
 for epoch in range(max_epochs):
     # Train and save training error for each batch
-    for i in range(0, dataset_size, batch_size):
-        X_batch = X_train[i:i+batch_size]
-        Y_batch = Y_train[i:i+batch_size]
+    model.train()
+    for X_batch, Y_batch in train_loader:
         loss = net.train_step(X_batch, Y_batch) 
-        train_epochs.append(epoch + i/dataset_size)
+        train_epochs.append(train_epochs[-1] + batch_size/dataset_size) if train_epochs else train_epochs.append(0)
         train_losses.append(loss)
     
     # Save test error at the end of every epoch
-    train_epochs.append(epoch)
-    test_losses.append(net.criterion(net(X_test), Y_test))
+    test_epochs.append(epoch)
+    X_test, Y_test = next(iter(test_loader))
+    loss = net.criterion(net(X_test), Y_test).item()
+    test_losses.append(loss)
 
 # Plot training and testing loss versus epoch
 plt.plot(train_epochs, train_losses, label='Train')
 plt.plot(test_epochs, test_losses, label='Test')
 plt.xlabel('Epoch')
 plt.ylabel('Loss')
+plt.legend()
 plt.show()
 
