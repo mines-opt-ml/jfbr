@@ -11,7 +11,7 @@ input_dim = 10
 output_dim = 20
 Model = models.mon_net.MonNet
 model = Model(input_dim, output_dim)
-loss = torch.nn.MSELoss()
+loss_function = torch.nn.MSELoss()
 dataset_size = 10000
 train_size = round(0.8 * dataset_size)
 test_size = dataset_size - train_size
@@ -28,14 +28,14 @@ Y = dataset_dict['Y']
 dataset = torch.utils.data.TensorDataset(X, Y)
 train_dataset, test_dataset = torch.utils.data.random_split(dataset, [train_size, test_size])
 train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=dataset_size, shuffle=False)
+test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
 # Instantiate the model and set the optimizer and loss function
 net = Model(input_dim, output_dim)
 net.optimizer = torch.optim.SGD(net.parameters(), lr=lr)
-net.criterion = loss
+net.criterion = loss_function
 
-# Train the model using batched SGD and save losses 
+# Train the model using batched SGD and save training and testing losses 
 # TODO: create option for randomly sampled batches instead of epoch-wise
 train_epochs = []
 train_losses = []
@@ -43,24 +43,34 @@ test_epochs = []
 test_losses = []
 
 for epoch in range(max_epochs):
-    # Train and save training error for each batch
-    model.train()
-    for X_batch, Y_batch in train_loader:
-        loss = net.train_step(X_batch, Y_batch) 
-        train_epochs.append(train_epochs[-1] + batch_size/dataset_size) if train_epochs else train_epochs.append(0)
-        train_losses.append(loss)
+    # Train for an epoch
+    model.train() 
+    for i, (X_batch, Y_batch) in enumerate(train_loader):
+        train_loss = net.train_step(X_batch, Y_batch) 
+        train_epochs.append(epoch + i / len(train_loader))
+        train_losses.append(train_loss)
     
-    # Save test error at the end of every epoch
-    test_epochs.append(epoch)
-    X_test, Y_test = next(iter(test_loader))
-    loss = net.criterion(net(X_test), Y_test).item()
-    test_losses.append(loss)
+    # Evaluate after every epoch
+    model.eval()
+    total_test_loss = 0
+    with torch.no_grad(): 
+        for X_test, Y_test in test_loader:
+            test_loss = net.criterion(net(X_test), Y_test).item()
+            total_test_loss += test_loss * len(X_test) 
 
-# Plot training and testing loss versus epoch
-plt.plot(train_epochs, train_losses, label='Train')
-plt.plot(test_epochs, test_losses, label='Test')
-plt.xlabel('Epoch')
+    avg_test_loss = total_test_loss / test_size 
+    test_epochs.append(epoch+1)
+    test_losses.append(avg_test_loss)
+
+    print(f'Epoch {epoch+1}: Train Loss = {train_losses[-1]:.4f}, Test Loss = {test_losses[-1]:.4f}')
+
+# Plotting the training and testing losses
+plt.figure(figsize=(10, 5))
+plt.plot(train_epochs, train_losses, label='Train Loss')
+plt.plot(test_epochs, test_losses, label='Test Loss')
+plt.xlabel('Epochs')
 plt.ylabel('Loss')
+plt.title('Training and Testing Loss Over Epochs')
 plt.legend()
+plt.grid(True)
 plt.show()
-
