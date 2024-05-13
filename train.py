@@ -1,15 +1,15 @@
-import torch.utils
-import models.mon_net
-import models.simple_net
 import torch
-import models
-import utils.data_utils as data_utils
+import torch.utils
 import matplotlib.pyplot as plt
+import utils.data_utils as data_utils
+import models.mon_net_AD
+import models.mon_net_JFB
+import models.mon_net_JFBR
 
 # Set parameters
 input_dim = 10
 output_dim = 20
-Model = models.mon_net.MonNet
+Model = models.mon_net_AD.MonNetAD
 model = Model(input_dim, output_dim)
 loss_function = torch.nn.MSELoss()
 dataset_size = 10000
@@ -70,7 +70,6 @@ plt.plot(train_epochs, train_losses, label='Train Loss')
 plt.plot(test_epochs, test_losses, label='Test Loss')
 plt.xlabel('Epochs')
 plt.ylabel('Loss')
-plt.title('Training and Testing Loss Over Epochs')
 plt.legend()
 plt.grid(True)
 plt.show()
