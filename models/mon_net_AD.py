@@ -5,27 +5,29 @@ class MonNetAD(BaseMonNet):
     """ Monotone network trained using standard automatic differentiation (AD). """
 
     def __init__(self, in_dim, out_dim, m=1.0, max_iter=100, tol=1e-6):
-        #TODO: find theoretically motivated choice for tolerance given guaranteed convergence
         super().__init__(in_dim, out_dim, m, max_iter, tol)
     
     def name(self):
         return 'MonNetAD'
 
     def forward(self, x, z=None):
-        iters = 0
-        if z is None:
-            z = torch.zeros(self.out_dim) # TODO: add customizable (random) latent initialization
+        z = torch.zeros(self.out_dim) if z is None else z
+        
+        # Training
+        if self.training:
+            for _ in range(self.max_iter):
+                z = self.mon_layer(x, z)
+            return z
 
-        # Apply monotone layer until maximum iterations or convergence
-        while iters < self.max_iter:
-            z_new = self.mon_layer(x, z)
-            if torch.norm(z_new - z, p=2) < self.tol:
+        # Evaluation
+        else:
+            for _ in range(self.max_iter):
+                z_new = self.mon_layer(x, z)
+                if torch.norm(z_new - z, p=2) < self.tol:
+                    z = z_new
+                    break
                 z = z_new
-                break
-
-            z = z_new
-            iters += 1
-        return z
+            return z
     
     def train_step(self, X_batch, Y_batch):
         self.optimizer.zero_grad()

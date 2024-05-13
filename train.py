@@ -9,14 +9,14 @@ import models.mon_net_JFBR
 # Set parameters
 input_dim = 10
 output_dim = 20
-Model = models.mon_net_AD.MonNetAD
+Model = models.mon_net_JFB.MonNetJFB
 model = Model(input_dim, output_dim)
 loss_function = torch.nn.MSELoss()
-dataset_size = 10000
+dataset_size = 1024
 train_size = round(0.8 * dataset_size)
 test_size = dataset_size - train_size
-max_epochs = 10
-batch_size = 100
+max_epochs = 30
+batch_size = 32
 lr = 0.01
 # TODO: fix generator with random seed and add as argument to random functions for reproducibility
 
