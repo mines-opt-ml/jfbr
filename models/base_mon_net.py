@@ -18,7 +18,7 @@ class MonLayer(torch.nn.Module):
         self.m = m
     
     def name(self):
-        return 'MonNet'
+        return 'MonLayer'
 
     def forward(self, x, z):
         return F.relu(self.multiply(z) + self.U(x))
@@ -29,7 +29,7 @@ class MonLayer(torch.nn.Module):
 
 class BaseMonNet(torch.nn.Module, ABC):
 
-    def __init__(self, in_dim, out_dim, m=1.0, max_iter=100, tol=1e-6):
+    def __init__(self, in_dim, out_dim, m=1.0, max_iter=100, tol=1e-6, seed=0):
         #TODO: find theoretically motivated choice for tolerance given guaranteed convergence
         super().__init__()
         self.in_dim = in_dim

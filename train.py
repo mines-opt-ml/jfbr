@@ -1,5 +1,6 @@
 import torch
 import torch.utils
+import time
 import matplotlib.pyplot as plt
 import utils.data_utils as data_utils
 import models.mon_net_AD
@@ -15,10 +16,10 @@ loss_function = torch.nn.MSELoss()
 dataset_size = 1024
 train_size = round(0.8 * dataset_size)
 test_size = dataset_size - train_size
-max_epochs = 30
+max_epochs = 100
 batch_size = 32
 lr = 0.01
-# TODO: fix generator with random seed and add as argument to random functions for reproducibility
+seed = 0
 
 # Synthesize and split data, and instantiate data loaders
 data_utils.synthesize_data(Model, input_dim, output_dim, dataset_size, 'data/dataset.pth')
@@ -41,6 +42,7 @@ train_epochs = []
 train_losses = []
 test_epochs = []
 test_losses = []
+start_time = time.time()
 
 for epoch in range(max_epochs):
     # Train for an epoch
@@ -62,7 +64,8 @@ for epoch in range(max_epochs):
     test_epochs.append(epoch+1)
     test_losses.append(avg_test_loss)
 
-    print(f'Epoch {epoch+1}: Train Loss = {train_losses[-1]:.4f}, Test Loss = {test_losses[-1]:.4f}')
+    # Print losses and time
+    print(f'Epoch {epoch+1}: Train loss = {train_losses[-1]:.4f}, Test loss = {test_losses[-1]:.4f}, Time = {time.time() - start_time:.2f} s')  
 
 # Plotting the training and testing losses
 plt.figure(figsize=(10, 5))
