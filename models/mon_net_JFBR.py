@@ -1,6 +1,7 @@
 import torch
 from models.base_mon_net import MonLayer, BaseMonNet
 
+# training approach inspired by CSBO paper https://arxiv.org/abs/2310.18535
 class MonNetJFBR(BaseMonNet):
     """ Monotone network trained using standard automatic differentiation (AD). """
 
@@ -15,14 +16,31 @@ class MonNetJFBR(BaseMonNet):
         
         # Training
         if self.training:
-            with torch.no_grad():
-                # TODO: implement JFBR training
-                raise NotImplementedError("JFBR is not implemented for training")
-                for _ in range(self.max_iter - 1):
-                    z = self.mon_layer(x, z)
-                
+            # generate probablity vector p[k] using truncated geometric distribution then sample k
+            p = torch.zeros(self.max_iter)
+            for k in range(self.max_iter):
+                p[k] = 2**(self.max_iter - k) / (2**(self.max_iter + 1) - 1)
+            assert torch.isclose(torch.sum(p), torch.tensor(1.0)), 'p is not a probability vector'
+
+            sampled_k = torch.multinomial(p, 1).item()
+            
+            # Compute z_1 
             z = self.mon_layer(x, z)
-            return z
+            z_1 = z
+
+            # Compute z_k
+            with torch.no_grad():
+                for _ in range(sampled_k - 2):
+                    z = self.mon_layer(x, z)
+            z = self.mon_layer(x, z)
+            z_k = z
+
+            # Compute z_{k+1}
+            z.detach()
+            z = self.mon_layer(x, z)
+            z_k_1 = z
+
+            return z_1, z_k, z_k_1
 
         # Evaluation
         else:
@@ -34,7 +52,7 @@ class MonNetJFBR(BaseMonNet):
                 z = z_new
             return z
     
-    def train_step(self, X_batch, Y_batch):
+    def train_step(self, X_batch, Y_batch, ):
         self.optimizer.zero_grad()
         Y_hat = self.forward(X_batch)
         loss = self.criterion(Y_hat, Y_batch)
