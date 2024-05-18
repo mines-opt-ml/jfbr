@@ -47,5 +47,5 @@ class BaseMonNet(torch.nn.Module, ABC):
         pass
     
     @abstractmethod
-    def train_step(self, X_batch, Y_batch):
+    def train_model(self, train_loader, criterion, optimizer, max_epochs, verbose=False):
         pass
