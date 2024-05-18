@@ -9,13 +9,13 @@ import models.mon_net_JFBR
 # Set parameters
 input_dim = 10
 output_dim = 20
-Model = models.mon_net_JFBR.MonNetJFBR
+Model = models.mon_net_JFB.MonNetJFB
 model = Model(input_dim, output_dim)
 loss_function = torch.nn.MSELoss()
 dataset_size = 1024
 train_size = round(0.8 * dataset_size)
 test_size = dataset_size - train_size
-max_epochs = 1000
+max_epochs = 100
 batch_size = 32
 lr = 0.01
 seed = 0

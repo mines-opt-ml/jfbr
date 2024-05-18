@@ -27,21 +27,21 @@ class MonNetJFBR(BaseMonNet):
             
             # Compute z_1 
             z = self.mon_layer(x, z)
-            z_1 = z
+            z_1 = z.clone()
 
             # Compute z_k
             with torch.no_grad():
                 for _ in range(sampled_k - 2):
-                    z = self.mon_layer(x, z)
+                    z = self.mon_layer(x, z).detach() # detach is likely redundant
             z = self.mon_layer(x, z)
-            z_k = z
+            z_k = z.clone()
 
             # Compute z_{k+1}
             z.detach()
             z = self.mon_layer(x, z)
-            z_k_1 = z
+            z_k_1 = z.clone()
 
-            return z_1, z_k, z_k_1
+            return z_1, z_k, z_k_1, p[sampled_k]
 
         # Evaluation
         else:
@@ -60,16 +60,15 @@ class MonNetJFBR(BaseMonNet):
         for epoch in range(max_epochs):
             for i, (X_batch, Y_batch) in enumerate(train_loader):
                 self.train() 
-                z_1, z_k, z_k_1 = self.forward(X_batch)
+                z_1, z_k, z_k_1, p_k = self.forward(X_batch)
                 
                 loss_1 = self.criterion(z_1, Y_batch)
                 loss_k = self.criterion(z_k, Y_batch)
                 loss_k_1 = self.criterion(z_k_1, Y_batch)
+                loss = loss_1 + 1/p_k * (loss_k_1 - loss_k)
                 
                 self.optimizer.zero_grad()
-                loss_1.backward()
-                loss_k.backward()
-                loss_k_1.backward()
+                loss.backward()
                 self.optimizer.step()
 
                 if verbose:
