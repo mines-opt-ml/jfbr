@@ -70,14 +70,13 @@ class BaseMonNet(torch.nn.Module, ABC):
             # If testing, evaluate model on test data once per epoch
             if test_loader is not None:
                 self.eval()
-
                 X_batch, Y_batch = next(iter(test_loader))
                 test_loss = self.criterion(self.forward(X_batch), Y_batch).item()
                 epochs.append(epoch + i)
                 times.append(time.time() - start_time)
                 test_losses.append(test_loss)
 
-            print(f'Epoch: {epoch+1}/{max_epochs}, Test Loss: {test_loss:.3f}, Time: {time.time() - start_time:.1f} s')
+            print(f'Model: {self.name()}, Epoch: {epoch+1}/{max_epochs}, Test Loss: {test_loss:.3f}, Time: {time.time() - start_time:.1f} s')
 
         if test_loader is not None:
             return epochs, times, test_losses
