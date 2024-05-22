@@ -43,4 +43,5 @@ The `/models` folder contains the following models:
 - `mon_net_JFB_R`
     - monotone network trained via Jacobian free backpropagation (JFB), but with random selection of the number of iterations 
 - `mon_net_JFB_CSBO`
-    - monotone network trained via Jacobian free backpropagation (JFB), but with random selection of the number of iterations 
+    - monotone network trained via Jacobian free backpropagation (JFB), but with random selection of the number of iterations and use of the gradient estimator $\hat{v} = \hat{v}_1 + \frac{1}{p_k}(\hat{v}_{k+1}-\hat{v}_k)$
+    - inspired by https://arxiv.org/abs/2310.18535
