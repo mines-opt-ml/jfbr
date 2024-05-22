@@ -3,14 +3,14 @@ import time
 from models.base_mon_net import MonLayer, BaseMonNet
 
 # training approach inspired by CSBO paper https://arxiv.org/abs/2310.18535
-class MonNetJFBR(BaseMonNet):
-    """ Monotone network trained using standard automatic differentiation (AD). """
+class MonNetJFBCSBO(BaseMonNet):
+    """ Monotone network trained using JFB and gradient update formula from CSBO. """
 
     def __init__(self, in_dim, out_dim, m=1.0, max_iter=100, tol=1e-6):
         super().__init__(in_dim, out_dim, m, max_iter, tol)
     
     def name(self):
-        return 'MonNetJFBR'
+        return 'MonNetJFBCSBO'
 
     def forward(self, x, z=None):
         z = torch.zeros(self.out_dim) if z is None else z
