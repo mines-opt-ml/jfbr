@@ -7,11 +7,13 @@ env/
 # Ignore __pycache__ folder
 __pycache__/
 
-# Ignore contents of notebook and data folder
-notebooks/*
-!notebooks/.gitkeep
+# Ignore contents of these folders
+notebooks/* 
+!notebooks/.gitkeep 
 data/*
 !data/.gitkeep
+results/*
+!results/.gitkeep
 
 # Ignore folder created by setup.py
 setup.egg-info/
