@@ -1,7 +1,8 @@
+import time
+from abc import ABC, abstractmethod
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from abc import ABC, abstractmethod
 
 # Based on https://github.com/locuslab/monotone_op_net/blob/master/mon.py
 class MonLayer(torch.nn.Module):
@@ -46,6 +47,37 @@ class BaseMonNet(torch.nn.Module, ABC):
     def forward(self, x, z=None):
         pass
     
-    @abstractmethod
-    def train_model(self, train_loader, criterion, optimizer, max_epochs, verbose=False):
-        pass
+    def train_step(self, X_batch, Y_batch):
+        self.train() 
+        z = self.forward(X_batch)
+        loss = self.criterion(z, Y_batch)
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
+
+    def train_model(self, train_loader, test_loader=None, max_epochs=100):
+        epochs = []
+        times = []
+        test_losses = []
+
+        start_time = time.time()
+
+        for epoch in range(max_epochs):
+            for i, (X_batch, Y_batch) in enumerate(train_loader):
+                self.train() 
+                self.train_step(X_batch, Y_batch)
+
+            # If testing, evaluate model on test data once per epoch
+            if test_loader is not None:
+                self.eval()
+
+                X_batch, Y_batch = next(iter(test_loader))
+                test_loss = self.criterion(self.forward(X_batch), Y_batch).item()
+                epochs.append(epoch + i)
+                times.append(time.time() - start_time)
+                test_losses.append(test_loss)
+
+            print(f'Epoch: {epoch+1}/{max_epochs}, Test Loss: {test_loss:.3f}, Time: {time.time() - start_time:.1f} s')
+
+        if test_loader is not None:
+            return epochs, times, test_losses

@@ -4,12 +4,13 @@ import matplotlib.pyplot as plt
 import utils.data_utils as data_utils
 import models.mon_net_AD
 import models.mon_net_JFB
-import models.mon_net_JFBR
+import models.mon_net_JFB_R
+import models.mon_net_JFB_CSBO
 
 # Set parameters
 input_dim = 10
 output_dim = 20
-Model = models.mon_net_JFB.MonNetJFB
+Model = models.mon_net_JFB_CSBO.MonNetJFBCSBO
 model = Model(input_dim, output_dim)
 loss_function = torch.nn.MSELoss()
 dataset_size = 1024
@@ -37,15 +38,15 @@ net.criterion = loss_function
 
 # Train the model using batched SGD and save training and testing losses 
 # TODO: create option for randomly sampled batches instead of epoch-wise
-train_epochs, train_losses = net.train_model(train_loader, max_epochs, verbose=True)
+epochs, times, test_losses = net.train_model(train_loader, test_loader, max_epochs)
 
 # Plotting the training and testing losses
 plt.figure(figsize=(10, 5))
-plt.plot(train_epochs, train_losses, label='Train Loss')
-plt.xlabel('Epochs')
-plt.ylabel('Loss')
+plt.plot(times, test_losses, label=f'{net.name()}')
+plt.xlabel('Time (s)')
+plt.ylabel('Test Loss')
 plt.legend()
 plt.grid(True)
-plt.show()
+plt.savefig(f'results/loss_plot_{net.name()}.png', dpi=600)
 
 #TODO: test model on test data
