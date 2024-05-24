@@ -6,8 +6,11 @@ from models.base_mon_net import MonLayer, BaseMonNet
 class MonNetJFBR(BaseMonNet):
     """ Monotone network trained using JFB and random selection of number of iterations. """
 
-    def __init__(self, in_dim, out_dim, m=1.0, max_iter=100, tol=1e-6):
+    def __init__(self, in_dim, out_dim, m=1.0, max_iter=100, tol=1e-6, decay=0.5):
         super().__init__(in_dim, out_dim, m, max_iter, tol)
+
+        self.p = torch.tensor([decay**k for k in range(max_iter)])
+        self.p = self.p / torch.sum(self.p)
     
     def name(self):
         return 'MonNetJFBR'
@@ -17,26 +20,14 @@ class MonNetJFBR(BaseMonNet):
         
         # Training
         if self.training:
-            # generate probablity vector p[k] using truncated geometric distribution then sample k
-            p = torch.zeros(self.max_iter)
-            for k in range(self.max_iter):
-                p[k] = 2**(self.max_iter - k) / (2**(self.max_iter + 1) - 1)
-            assert torch.isclose(torch.sum(p), torch.tensor(1.0)), 'p is not a probability vector'
-
-            sampled_k = torch.multinomial(p, 1).item()
+            sampled_k = torch.multinomial(self.p, 1).item()
             
-            # Compute z_1 
-            z = self.mon_layer(x, z)
-            z_1 = z.clone()
-
-            # Compute z_k
             with torch.no_grad():
-                for _ in range(sampled_k - 2):
-                    z = self.mon_layer(x, z).detach() # detach is likely redundant
+                for _ in range(sampled_k - 1):
+                    z = self.mon_layer(x, z)
+                
             z = self.mon_layer(x, z)
-            z_k = z.clone()
-
-            return z_1, z_k, p[sampled_k]
+            return z
 
         # Evaluation
         else:
@@ -49,11 +40,9 @@ class MonNetJFBR(BaseMonNet):
             return z
     
     def train_step(self, X_batch, Y_batch):
-        z_1, z_k, p_k = self.forward(X_batch)
+        z = self.forward(X_batch)
         
-        loss_1 = self.criterion(z_1, Y_batch)
-        loss_k = self.criterion(z_k, Y_batch)
-        loss = loss_1 + 1/p_k * loss_k
+        loss = self.criterion(z, Y_batch)
         
         self.optimizer.zero_grad()
         loss.backward()

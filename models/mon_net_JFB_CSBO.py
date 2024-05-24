@@ -6,8 +6,11 @@ from models.base_mon_net import MonLayer, BaseMonNet
 class MonNetJFBCSBO(BaseMonNet):
     """ Monotone network trained using JFB and gradient update formula from CSBO. """
 
-    def __init__(self, in_dim, out_dim, m=1.0, max_iter=100, tol=1e-6):
+    def __init__(self, in_dim, out_dim, m=1.0, max_iter=100, tol=1e-6, decay=0.5):
         super().__init__(in_dim, out_dim, m, max_iter, tol)
+
+        self.p = torch.tensor([decay**k for k in range(max_iter)])
+        self.p = self.p / torch.sum(self.p)
     
     def name(self):
         return 'MonNetJFBCSBO'
@@ -17,13 +20,7 @@ class MonNetJFBCSBO(BaseMonNet):
         
         # Training
         if self.training:
-            # generate probablity vector p[k] using truncated geometric distribution then sample k
-            p = torch.zeros(self.max_iter)
-            for k in range(self.max_iter):
-                p[k] = 2**(self.max_iter - k) / (2**(self.max_iter + 1) - 1)
-            assert torch.isclose(torch.sum(p), torch.tensor(1.0)), 'p is not a probability vector'
-
-            sampled_k = torch.multinomial(p, 1).item()
+            sampled_k = torch.multinomial(self.p, 1).item()
             
             # Compute z_1 
             z = self.mon_layer(x, z)
@@ -41,7 +38,7 @@ class MonNetJFBCSBO(BaseMonNet):
             z = self.mon_layer(x, z)
             z_k_1 = z.clone()
 
-            return z_1, z_k, z_k_1, p[sampled_k]
+            return z_1, z_k, z_k_1, self.p[sampled_k]
 
         # Evaluation
         else:
