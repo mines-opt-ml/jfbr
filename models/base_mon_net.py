@@ -62,6 +62,16 @@ class BaseMonNet(torch.nn.Module, ABC):
 
         start_time = time.time()
 
+        # If testing, evaluate model on test data before training
+        if test_loader is not None:
+            test_loss = self.test_model(test_loader)
+            
+            epochs.append(0)
+            times.append(time.time() - start_time)
+            test_losses.append(test_loss)
+
+            print(f'Model: {self.name()}, Epoch: {0}/{max_epochs}, Test Loss: {test_loss:.3f}, Time: {time.time() - start_time:.1f} s')
+
         for epoch in range(max_epochs):
             for i, (X_batch, Y_batch) in enumerate(train_loader):
                 self.train() 
@@ -69,9 +79,8 @@ class BaseMonNet(torch.nn.Module, ABC):
 
             # If testing, evaluate model on test data once per epoch
             if test_loader is not None:
-                self.eval()
-                X_batch, Y_batch = next(iter(test_loader))
-                test_loss = self.criterion(self.forward(X_batch), Y_batch).item()
+                test_loss = self.test_model(test_loader)
+
                 epochs.append(epoch + i)
                 times.append(time.time() - start_time)
                 test_losses.append(test_loss)
@@ -80,3 +89,11 @@ class BaseMonNet(torch.nn.Module, ABC):
 
         if test_loader is not None:
             return epochs, times, test_losses
+    
+    def test_model(self, test_loader):
+        self.eval()
+        total_test_loss = 0
+        for X_batch, Y_batch in test_loader:
+            total_test_loss += self.criterion(self.forward(X_batch), Y_batch).item()
+        test_loss = total_test_loss / len(test_loader)
+        return test_loss

@@ -9,8 +9,10 @@ class MonNetJFBCSBO(BaseMonNet):
     def __init__(self, in_dim, out_dim, m=1.0, max_iter=100, tol=1e-6, decay=0.5):
         super().__init__(in_dim, out_dim, m, max_iter, tol)
 
-        self.p = torch.tensor([decay**k for k in range(max_iter)])
-        self.p = self.p / torch.sum(self.p)
+        # Initialize propability vector for k, the number of iterations during training
+        self.p = torch.tensor([decay**k for k in range(max_iter + 1)]) # geometric decay of probability
+        self.p[0] = 0 # k=0 is not allowed
+        self.p = self.p / torch.sum(self.p) # normalize
     
     def name(self):
         return 'MonNetJFBCSBO'
@@ -20,17 +22,18 @@ class MonNetJFBCSBO(BaseMonNet):
         
         # Training
         if self.training:
-            sampled_k = torch.multinomial(self.p, 1).item()
+            k = torch.multinomial(self.p, 1).item()
             
             # Compute z_1 
             z = self.mon_layer(x, z)
             z_1 = z.clone()
 
             # Compute z_k
-            with torch.no_grad():
-                for _ in range(sampled_k - 2):
-                    z = self.mon_layer(x, z).detach() # detach is likely redundant
-            z = self.mon_layer(x, z)
+            if k > 1:
+                with torch.no_grad():
+                    for _ in range(k - 2):
+                        z = self.mon_layer(x, z)
+                z = self.mon_layer(x, z)
             z_k = z.clone()
 
             # Compute z_{k+1}
@@ -38,7 +41,7 @@ class MonNetJFBCSBO(BaseMonNet):
             z = self.mon_layer(x, z)
             z_k_1 = z.clone()
 
-            return z_1, z_k, z_k_1, self.p[sampled_k]
+            return z_1, z_k, z_k_1, k
 
         # Evaluation
         else:
@@ -51,12 +54,13 @@ class MonNetJFBCSBO(BaseMonNet):
             return z
     
     def train_step(self, X_batch, Y_batch):
-        z_1, z_k, z_k_1, p_k = self.forward(X_batch)
+        z_1, z_k, z_k_1, k = self.forward(X_batch)
         
         loss_1 = self.criterion(z_1, Y_batch)
         loss_k = self.criterion(z_k, Y_batch)
         loss_k_1 = self.criterion(z_k_1, Y_batch)
-        loss = loss_1 + 1/p_k * (loss_k_1 - loss_k)
+        loss = loss_1 + 1/self.p[k] * (loss_k_1 - loss_k)
+        #print(f'k: {k}, loss: {loss.item()}')
         
         self.optimizer.zero_grad()
         loss.backward()

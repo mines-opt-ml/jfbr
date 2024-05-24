@@ -9,8 +9,10 @@ class MonNetJFBR(BaseMonNet):
     def __init__(self, in_dim, out_dim, m=1.0, max_iter=100, tol=1e-6, decay=0.5):
         super().__init__(in_dim, out_dim, m, max_iter, tol)
 
-        self.p = torch.tensor([decay**k for k in range(max_iter)])
-        self.p = self.p / torch.sum(self.p)
+        # Initialize probability vector for k, the number of iterations during training
+        self.p = torch.tensor([decay**k for k in range(max_iter + 1)]) # geometric decay of probability
+        self.p[0] = 0 # k=0 is not allowed
+        self.p = self.p / torch.sum(self.p) # normalize
     
     def name(self):
         return 'MonNetJFBR'
@@ -20,10 +22,10 @@ class MonNetJFBR(BaseMonNet):
         
         # Training
         if self.training:
-            sampled_k = torch.multinomial(self.p, 1).item()
+            k = torch.multinomial(self.p, 1).item()
             
             with torch.no_grad():
-                for _ in range(sampled_k - 1):
+                for _ in range(k - 1):
                     z = self.mon_layer(x, z)
                 
             z = self.mon_layer(x, z)
