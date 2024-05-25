@@ -7,6 +7,8 @@ import models.mon_net_JFB
 import models.mon_net_JFB_R
 import models.mon_net_JFB_CSBO
 
+assert torch.cuda.is_available()
+
 # Set parameters
 input_dim = 10
 output_dim = 20
