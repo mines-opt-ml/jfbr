@@ -4,7 +4,7 @@
 # Ignore Python virtual environment
 env/
 
-# Ignore __pycache__ folder
+# Ignore __pycache__ folders
 __pycache__/
 
 # Ignore contents of these folders
