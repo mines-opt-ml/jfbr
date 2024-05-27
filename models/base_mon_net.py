@@ -87,7 +87,7 @@ class BaseMonNet(torch.nn.Module, ABC):
             if test_loader is not None:
                 test_loss = self.test_model(test_loader)
 
-                epochs.append(epoch + i)
+                epochs.append(epoch + 1)
                 times.append(time.time() - start_time)
                 test_losses.append(test_loss)
 

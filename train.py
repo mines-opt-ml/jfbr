@@ -30,7 +30,7 @@ test_size = dataset_size - train_size
 max_epochs = 100
 batch_size = 32
 lr = 0.01
-seed = 0
+seed = 1
 
 # Set random seed for ground truth model initialization and synthetic data generation
 model_utils.set_seed(seed)
@@ -58,12 +58,12 @@ for Model in Models:
     model.optimizer = torch.optim.SGD(model.parameters(), lr=lr)
     model.criterion = loss_function
 
-    # Print first input, output, and prediction as numpy arrays
-    print(f'BEFORE TRAINING')
-    print(f'X[0]: {X[0].detach().numpy()}')
-    print(f'Y[0]: {Y[0].detach().numpy()}')
-    model.eval()
-    print(f'model(X[0]): {model(X[0]).detach().numpy()}')
+    # # Print first input, output, and prediction as numpy arrays
+    # print(f'BEFORE TRAINING')
+    # print(f'X[0]: {X[0].detach().numpy()}')
+    # print(f'Y[0]: {Y[0].detach().numpy()}')
+    # model.eval()
+    # print(f'model(X[0]): {model(X[0]).detach().numpy()}')
 
     # Check for NaNs in parameters before training
     for name, param in model.named_parameters():
@@ -80,12 +80,12 @@ for Model in Models:
     # TODO: create option for randomly sampled batches instead of epoch-wise
     epochs, times, test_losses = model.train_model(train_loader, test_loader, max_epochs)
 
-    # Print first input, output, and prediction as numpy arrays
-    print(f'AFTER TRAINING')
-    print(f'X[0]: {X[0].detach().numpy()}')
-    print(f'Y[0]: {Y[0].detach().numpy()}')
-    model.eval()
-    print(f'model(X[0]): {model(X[0]).detach().numpy()}')
+    # # Print first input, output, and prediction as numpy arrays
+    # print(f'AFTER TRAINING')
+    # print(f'X[0]: {X[0].detach().numpy()}')
+    # print(f'Y[0]: {Y[0].detach().numpy()}')
+    # model.eval()
+    # print(f'model(X[0]): {model(X[0]).detach().numpy()}')
 
     # Check for NaNs in parameters after training
     for name, param in model.named_parameters():
