@@ -17,8 +17,8 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f'Using device: {device}')
 
 # Set parameters
-input_dim = 6
-output_dim = 3
+input_dim = 10
+output_dim = 10
 Models = [MonNetAD,
           MonNetJFB,
           MonNetJFBR,
@@ -27,7 +27,7 @@ loss_function = torch.nn.MSELoss()
 dataset_size = 1024
 train_size = round(0.8 * dataset_size)
 test_size = dataset_size - train_size
-max_epochs = 20
+max_epochs = 100
 batch_size = 32
 lr = 0.01
 seed = 0
@@ -46,7 +46,9 @@ train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size,
 test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
 # Train models
-plt.figure(figsize=(10, 5))
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 5))
+plt.subplots_adjust(wspace=0.4)  # Adjust the width space between the subplot
+
 for Model in Models:
     # Alter random seed for model initialization
     model_utils.set_seed(seed + 1)
@@ -91,11 +93,21 @@ for Model in Models:
             print(f'NaN detected in parameter {name} after training.')
 
     # Plotting the training and testing losses
-    plt.plot(times, test_losses, label=f'{model.name()}')
+    ax1.plot(epochs, test_losses, label=f'{model.name()}')
+    ax2.plot(times, test_losses, label=f'{model.name()}')
 
-plt.xlabel('Time (s)')
-plt.yscale('log')
-plt.ylabel('Test Loss')
-plt.legend()
-plt.grid(True)
+ax1.set_title('Test Loss vs. Epochs')
+ax1.set_xlabel('Epochs')
+ax1.set_ylabel('Test Loss')
+ax1.set_yscale('log')
+ax1.legend()
+ax1.grid(True)
+
+ax2.set_title('Test Loss vs. Time')
+ax2.set_xlabel('Time (s)')
+ax2.set_ylabel('Test Loss')
+ax2.set_yscale('log')
+ax2.legend()
+ax2.grid(True)
+
 plt.savefig(f'results/loss_plot.png', dpi=600)
