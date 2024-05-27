@@ -17,8 +17,8 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f'Using device: {device}')
 
 # Set parameters
-input_dim = 20
-output_dim = 10
+input_dim = 6
+output_dim = 3
 Models = [MonNetAD
           #MonNetJFB,
           #MonNetJFBR,
@@ -31,7 +31,7 @@ test_size = dataset_size - train_size
 max_epochs = 3
 batch_size = 32
 lr = 0.01
-seed = 3
+seed = 0
 
 # Set random seed for ground truth model initialization and synthetic data generation
 model_utils.set_seed(seed)

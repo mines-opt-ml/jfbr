@@ -54,8 +54,8 @@ class BaseMonNet(torch.nn.Module, ABC):
         self.train() 
         z = self.forward(X_batch)
         loss = self.criterion(z, Y_batch)
-        if torch.isnan(loss).any():
-            print("NaN detected in loss.")
+        # if torch.isnan(loss).any():
+        #     print("NaN detected in loss.")
         self.optimizer.zero_grad()
         loss.backward()
         #torch.nn.utils.clip_grad_norm_(self.parameters(), max_norm=1.0)  # Gradient clipping
