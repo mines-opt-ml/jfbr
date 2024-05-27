@@ -19,16 +19,15 @@ print(f'Using device: {device}')
 # Set parameters
 input_dim = 6
 output_dim = 3
-Models = [MonNetAD
-          #MonNetJFB,
-          #MonNetJFBR,
-          #MonNetJFBCSBO
-          ]
+Models = [MonNetAD,
+          MonNetJFB,
+          MonNetJFBR,
+          MonNetJFBCSBO]
 loss_function = torch.nn.MSELoss()
 dataset_size = 1024
 train_size = round(0.8 * dataset_size)
 test_size = dataset_size - train_size
-max_epochs = 3
+max_epochs = 20
 batch_size = 32
 lr = 0.01
 seed = 0

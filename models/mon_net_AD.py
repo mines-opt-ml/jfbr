@@ -14,13 +14,13 @@ class MonNetAD(BaseMonNet):
     def forward(self, x, z=None):
         z = torch.zeros(self.out_dim) if z is None else z
         
-        # Training
+        # Train
         if self.training:
             for _ in range(self.max_iter):
                 z = self.mon_layer(x, z)
             return z
 
-        # Evaluation
+        # Evaluate
         else:
             for _ in range(self.max_iter):
                 z_new = self.mon_layer(x, z)

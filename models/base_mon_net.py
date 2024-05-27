@@ -18,7 +18,7 @@ class MonLayer(torch.nn.Module):
         self.A = nn.Linear(out_dim, out_dim, bias=False)
         self.B = nn.Linear(out_dim, out_dim, bias=False)
         self.m = m
-        self.apply(init_weights)
+        #self.apply(init_weights)
 
     def name(self):
         return 'MonLayer'
@@ -40,7 +40,7 @@ class BaseMonNet(torch.nn.Module, ABC):
         self.max_iter = max_iter
         self.tol = tol
         self.mon_layer = MonLayer(in_dim, out_dim, m)
-        self.apply(init_weights)
+        #self.apply(init_weights)
     
     @abstractmethod
     def name(self):
