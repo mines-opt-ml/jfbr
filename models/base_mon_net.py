@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from utils.model_utils import set_seed, init_weights
 
 # Based on https://github.com/locuslab/monotone_op_net/blob/master/mon.py
 class MonLayer(torch.nn.Module):
@@ -17,7 +18,8 @@ class MonLayer(torch.nn.Module):
         self.A = nn.Linear(out_dim, out_dim, bias=False)
         self.B = nn.Linear(out_dim, out_dim, bias=False)
         self.m = m
-    
+        self.apply(init_weights)
+
     def name(self):
         return 'MonLayer'
 
@@ -38,6 +40,7 @@ class BaseMonNet(torch.nn.Module, ABC):
         self.max_iter = max_iter
         self.tol = tol
         self.mon_layer = MonLayer(in_dim, out_dim, m)
+        self.apply(init_weights)
     
     @abstractmethod
     def name(self):
@@ -51,8 +54,11 @@ class BaseMonNet(torch.nn.Module, ABC):
         self.train() 
         z = self.forward(X_batch)
         loss = self.criterion(z, Y_batch)
+        if torch.isnan(loss).any():
+            print("NaN detected in loss.")
         self.optimizer.zero_grad()
         loss.backward()
+        #torch.nn.utils.clip_grad_norm_(self.parameters(), max_norm=1.0)  # Gradient clipping
         self.optimizer.step()
 
     def train_model(self, train_loader, test_loader=None, max_epochs=100):
@@ -85,7 +91,7 @@ class BaseMonNet(torch.nn.Module, ABC):
                 times.append(time.time() - start_time)
                 test_losses.append(test_loss)
 
-            print(f'Model: {self.name()}, Epoch: {epoch+1}/{max_epochs}, Test Loss: {test_loss:.3f}, Time: {time.time() - start_time:.1f} s')
+            print(f'Model: {self.name()}, Epoch: {epoch+1}/{max_epochs}, Test Loss: {test_loss:.5f}, Time: {time.time() - start_time:.1f} s')
 
         if test_loader is not None:
             return epochs, times, test_losses

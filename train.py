@@ -1,32 +1,43 @@
 import torch
 import torch.utils
-import matplotlib.pyplot as plt
-import utils.data_utils as data_utils
-import models.mon_net_AD
-import models.mon_net_JFB
-import models.mon_net_JFB_R
-import models.mon_net_JFB_CSBO
 
-assert torch.cuda.is_available()
+import matplotlib.pyplot as plt
+
+from utils import data_utils 
+from utils import model_utils
+
+from models.mon_net_AD import MonNetAD
+from models.mon_net_JFB import MonNetJFB
+from models.mon_net_JFB_R import MonNetJFBR
+from models.mon_net_JFB_CSBO import MonNetJFBCSBO
+
+
+# Check if CUDA is available
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+print(f'Using device: {device}')
 
 # Set parameters
-input_dim = 10
-output_dim = 20
-Models = [models.mon_net_AD.MonNetAD,
-          models.mon_net_JFB.MonNetJFB,
-          models.mon_net_JFB_R.MonNetJFBR,
-          models.mon_net_JFB_CSBO.MonNetJFBCSBO]
+input_dim = 20
+output_dim = 10
+Models = [MonNetAD
+          #MonNetJFB,
+          #MonNetJFBR,
+          #MonNetJFBCSBO
+          ]
 loss_function = torch.nn.MSELoss()
 dataset_size = 1024
 train_size = round(0.8 * dataset_size)
 test_size = dataset_size - train_size
-max_epochs = 20
+max_epochs = 3
 batch_size = 32
 lr = 0.01
-seed = 0
+seed = 3
+
+# Set random seed for ground truth model initialization and synthetic data generation
+model_utils.set_seed(seed)
 
 # Synthesize and split data, and instantiate data loaders
-data_utils.synthesize_data(Models[0], input_dim, output_dim, dataset_size, 'data/dataset.pth')
+data_utils.synthesize_data(MonNetAD, input_dim, output_dim, dataset_size, 'data/dataset.pth')
 dataset_dict = torch.load('data/dataset.pth')
 X = dataset_dict['X']
 Y = dataset_dict['Y']
@@ -38,14 +49,47 @@ test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, s
 # Train models
 plt.figure(figsize=(10, 5))
 for Model in Models:
+    # Alter random seed for model initialization
+    model_utils.set_seed(seed + 1)
+
     # Instantiate the model and set the optimizer and loss function
     model = Model(input_dim, output_dim)
     model.optimizer = torch.optim.SGD(model.parameters(), lr=lr)
     model.criterion = loss_function
 
+    # Print first input, output, and prediction as numpy arrays
+    print(f'BEFORE TRAINING')
+    print(f'X[0]: {X[0].detach().numpy()}')
+    print(f'Y[0]: {Y[0].detach().numpy()}')
+    model.eval()
+    print(f'model(X[0]): {model(X[0]).detach().numpy()}')
+
+    # Check for NaNs in parameters before training
+    for name, param in model.named_parameters():
+        if torch.isnan(param).any():
+            print(f'NaN detected in parameter {name} before training.')
+
+
+    # # Determine why the model is outputing nan
+    # for param in model.parameters():
+    #     print(type(param), param.size())
+    #     print(param)
+
     # Train the model using batched SGD and save training and testing losses 
     # TODO: create option for randomly sampled batches instead of epoch-wise
     epochs, times, test_losses = model.train_model(train_loader, test_loader, max_epochs)
+
+    # Print first input, output, and prediction as numpy arrays
+    print(f'AFTER TRAINING')
+    print(f'X[0]: {X[0].detach().numpy()}')
+    print(f'Y[0]: {Y[0].detach().numpy()}')
+    model.eval()
+    print(f'model(X[0]): {model(X[0]).detach().numpy()}')
+
+    # Check for NaNs in parameters after training
+    for name, param in model.named_parameters():
+        if torch.isnan(param).any():
+            print(f'NaN detected in parameter {name} after training.')
 
     # Plotting the training and testing losses
     plt.plot(times, test_losses, label=f'{model.name()}')
