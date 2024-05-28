@@ -12,6 +12,7 @@ m = 1.0
 max_iter = 1000
 
 # Test MonLayer for different seeds
+plt.figure(figsize=(15, 5))
 for seed in seeds:
     # Initialize MonLayer
     set_seed(seed)
@@ -39,7 +40,7 @@ for seed in seeds:
 
 # Format and save plot
 plt.xlabel('Iteration')
-plt.xlim(900, 1000)
+plt.xlim(700, 1000)
 
 plt.ylabel('Normed Difference')
 plt.yscale('log')
