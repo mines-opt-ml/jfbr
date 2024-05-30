@@ -24,9 +24,9 @@ class MonLayer(torch.nn.Module):
         return 'MonLayer'
 
     def forward(self, x, z):
-        return F.relu(self.multiply(z) + self.U(x))
+        return F.relu(self.W(z) + self.U(x))
 
-    def multiply(self, z):
+    def W(self, z):
         ATAz = self.A(z) @ self.A.weight 
         return (1 - self.m) * z - ATAz + self.B(z) - z @ self.B.weight
 
