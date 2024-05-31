@@ -19,9 +19,9 @@ def set_seed(seed):
 #         if m.bias is not None:
 #             torch.nn.init.constant_(m.bias, 0)
 
-def get_norm(W, num_iter=1): 
+def get_norm(W, dim, num_iter=1): 
     """Power iteration method to compute the norm of matrix W from multiplication only."""
-    v = torch.randn(W.shape[1])
+    v = torch.randn(dim)
     for _ in range(num_iter-1): 
         v = W(v)
     v = v / torch.norm(v, p=2)

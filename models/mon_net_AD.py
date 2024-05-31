@@ -3,7 +3,7 @@ import time
 from models.base_mon_net import MonLayer, BaseMonNet
 
 class MonNetAD(BaseMonNet):
-    """ Monotone network trained using standard automatic differentiation (AD). """
+    """ Monotone network trained using automatic differentiation (AD). """
 
     def __init__(self, in_dim, out_dim, m=1.0, max_iter=100, tol=1e-6):
         super().__init__(in_dim, out_dim, m, max_iter, tol)

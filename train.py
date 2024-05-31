@@ -12,19 +12,18 @@ from models.mon_net_JFB_R import MonNetJFBR
 from models.mon_net_JFB_CSBO import MonNetJFBCSBO
 
 from models.con_net_AD import ConNetAD
+from models.con_net_JFB import ConNetJFB
 
 # Check if CUDA is available
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f'Using device: {device}')
 
 # Set parameters
-input_dim = 10
-output_dim = 10
-Models = [MonNetAD,
-          MonNetJFB,
-          MonNetJFBR,
-          MonNetJFBCSBO,
-          ConNetAD]
+input_dim = 5
+output_dim = 5
+Models = [MonNetJFB,
+          #ConNetAD,
+          ConNetJFB]
 loss_function = torch.nn.MSELoss()
 dataset_size = 1024
 train_size = round(0.8 * dataset_size)

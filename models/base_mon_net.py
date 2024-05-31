@@ -26,13 +26,13 @@ class MonLayer(torch.nn.Module):
 
     def W(self, z):
         ATAz = self.A(z) @ self.A.weight 
-        return (1 - self.m) * z - ATAz + self.B(z) - z @ self.B.weight
+        Wz = (1 - self.m) * z - ATAz + self.B(z) - z @ self.B.weight
+        return Wz
 
 class BaseMonNet(torch.nn.Module, ABC):
     """ Base class for monotone networks. """
 
-    def __init__(self, in_dim, out_dim, m=1.0, max_iter=100, tol=1e-6, seed=0):
-        #TODO: find theoretically motivated choice for tolerance given guaranteed convergence
+    def __init__(self, in_dim, out_dim, m=1.0, max_iter=100, tol=1e-6):
         super().__init__()
         self.in_dim = in_dim
         self.out_dim = out_dim
