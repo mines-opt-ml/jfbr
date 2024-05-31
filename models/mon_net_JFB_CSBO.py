@@ -25,20 +25,20 @@ class MonNetJFBCSBO(BaseMonNet):
             k = torch.multinomial(self.p, 1).item()
             
             # Compute z_1 
-            z = self.mon_layer(x, z)
+            z = self.layer(x, z)
             z_1 = z.clone()
 
             # Compute z_k
             if k > 1:
                 with torch.no_grad():
                     for _ in range(k - 2):
-                        z = self.mon_layer(x, z)
-                z = self.mon_layer(x, z)
+                        z = self.layer(x, z)
+                z = self.layer(x, z)
             z_k = z.clone()
 
             # Compute z_{k+1}
             z.detach()
-            z = self.mon_layer(x, z)
+            z = self.layer(x, z)
             z_k_1 = z.clone()
 
             return z_1, z_k, z_k_1, k
@@ -46,7 +46,7 @@ class MonNetJFBCSBO(BaseMonNet):
         # Evaluation
         else:
             for _ in range(self.max_iter):
-                z_new = self.mon_layer(x, z)
+                z_new = self.layer(x, z)
                 if torch.norm(z_new - z, p=2) < self.tol:
                     z = z_new
                     break

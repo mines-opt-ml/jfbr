@@ -1,9 +1,8 @@
 import time
-from abc import ABC, abstractmethod
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from utils.model_utils import set_seed, init_weights
+from abc import ABC, abstractmethod
 
 # Based on https://github.com/locuslab/monotone_op_net/blob/master/mon.py
 class MonLayer(torch.nn.Module):
@@ -18,7 +17,6 @@ class MonLayer(torch.nn.Module):
         self.A = nn.Linear(out_dim, out_dim, bias=False)
         self.B = nn.Linear(out_dim, out_dim, bias=False)
         self.m = m
-        #self.apply(init_weights)
 
     def name(self):
         return 'MonLayer'
@@ -31,6 +29,7 @@ class MonLayer(torch.nn.Module):
         return (1 - self.m) * z - ATAz + self.B(z) - z @ self.B.weight
 
 class BaseMonNet(torch.nn.Module, ABC):
+    """ Base class for monotone networks. """
 
     def __init__(self, in_dim, out_dim, m=1.0, max_iter=100, tol=1e-6, seed=0):
         #TODO: find theoretically motivated choice for tolerance given guaranteed convergence
@@ -39,8 +38,7 @@ class BaseMonNet(torch.nn.Module, ABC):
         self.out_dim = out_dim
         self.max_iter = max_iter
         self.tol = tol
-        self.mon_layer = MonLayer(in_dim, out_dim, m)
-        #self.apply(init_weights)
+        self.layer = MonLayer(in_dim, out_dim, m)
     
     @abstractmethod
     def name(self):
@@ -54,11 +52,8 @@ class BaseMonNet(torch.nn.Module, ABC):
         self.train() 
         z = self.forward(X_batch)
         loss = self.criterion(z, Y_batch)
-        # if torch.isnan(loss).any():
-        #     print("NaN detected in loss.")
         self.optimizer.zero_grad()
         loss.backward()
-        #torch.nn.utils.clip_grad_norm_(self.parameters(), max_norm=1.0)  # Gradient clipping
         self.optimizer.step()
 
     def train_model(self, train_loader, test_loader=None, max_epochs=100):

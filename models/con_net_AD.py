@@ -1,15 +1,15 @@
 import torch
 import time
-from models.base_mon_net import MonLayer, BaseMonNet
+from models.base_con_net import ConLayer, BaseConNet
 
-class MonNetAD(BaseMonNet):
+class ConNetAD(BaseConNet):
     """ Monotone network trained using standard automatic differentiation (AD). """
 
-    def __init__(self, in_dim, out_dim, m=1.0, max_iter=100, tol=1e-6):
+    def __init__(self, in_dim, out_dim, m=1.0, L=0.9, max_iter=100, tol=1e-6):
         super().__init__(in_dim, out_dim, m, max_iter, tol)
     
     def name(self):
-        return 'MonNetAD'
+        return 'ConNetAD'
 
     def forward(self, x, z=None):
         z = torch.zeros(self.out_dim) if z is None else z

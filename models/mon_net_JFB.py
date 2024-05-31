@@ -18,15 +18,15 @@ class MonNetJFB(BaseMonNet):
         if self.training:
             with torch.no_grad():
                 for _ in range(self.max_iter - 1):
-                    z = self.mon_layer(x, z)
+                    z = self.layer(x, z)
                 
-            z = self.mon_layer(x, z)
+            z = self.layer(x, z)
             return z
 
         # Evaluation
         else:
             for _ in range(self.max_iter):
-                z_new = self.mon_layer(x, z)
+                z_new = self.layer(x, z)
                 if torch.norm(z_new - z, p=2) < self.tol:
                     z = z_new
                     break
