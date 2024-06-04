@@ -34,10 +34,11 @@ class MonLipLayer(BaseLayer):
         return Cz
 
 class BaseFwdStepNet(BaseNet, ABC):
-    """ Base class for monotone networks. """
+    """ Base class for forward step networks. """
 
     def __init__(self, in_dim, out_dim, max_iter=100, tol=1e-6, m0=0.5, L=1.0):  
         super().__init__(in_dim, out_dim, max_iter, tol)
+        self.alpha = None
         self.layer = MonLipLayer(in_dim, out_dim, m0, L)
     
     def name(self):
