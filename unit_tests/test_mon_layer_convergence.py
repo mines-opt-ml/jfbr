@@ -2,7 +2,7 @@ import numpy as np
 import torch
 import matplotlib.pyplot as plt
 from models.base_mon_net import MonLayer
-from utils.model_utils import set_seed
+from utils.model import set_seed
 
 # Set parameters
 seeds = [i for i in range(0, 10)]

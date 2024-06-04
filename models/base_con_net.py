@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from abc import ABC, abstractmethod
 from models.base_mon_net import MonLayer, BaseMonNet
-from utils.model_utils import approximate_norm
+from utils.model import approximate_norm
 
 class ConLayer(MonLayer):
     """ Single contractive layer that computes

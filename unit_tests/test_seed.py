@@ -1,6 +1,6 @@
 import torch
 from models.mon_net_AD import MonNetAD
-from utils.model_utils import set_seed
+from utils.model import set_seed
 
 set_seed(1)
 model_1 = MonNetAD(1, 1)

@@ -4,41 +4,33 @@ import torch.nn as nn
 import torch.nn.functional as F
 from abc import ABC, abstractmethod
 
-# Based on https://github.com/locuslab/monotone_op_net/blob/master/mon.py
-class MonLayer(torch.nn.Module, ABC):
-    """ Single monotone layer that computes
-            z_(k+1) = ReLU(W z_k + U x + b)
-        where 
-            W = (1-m)I - A^T A + B - B^T.
-    """
-    def __init__(self, in_dim, out_dim, m=1.0):
-        super().__init__()
-        self.U = nn.Linear(in_dim, out_dim)
+class BaseLayer(torch.nn.Module, ABC):
+    """ Abstract base class for layer function of implicit network. """
+
+    def __init__(self, in_dim, out_dim):
+        super().__init__(in_dim, out_dim)
         self.A = nn.Linear(out_dim, out_dim, bias=False)
         self.B = nn.Linear(out_dim, out_dim, bias=False)
-        self.m = m
+        self.U = nn.Linear(in_dim, out_dim)
 
+    @abstractmethod
     def name(self):
-        return 'MonLayer'
+        pass
 
+    @abstractmethod
     def forward(self, x, z):
-        return F.relu(self.W(z) + self.U(x))
+        pass
 
-    def W(self, z):
-        ATAz = self.A(z) @ self.A.weight 
-        Wz = (1 - self.m) * z - ATAz + self.B(z) - z @ self.B.weight
-        return Wz
+class BaseNet(torch.nn.Module, ABC):
+    """ Base class for implicit networks. """
 
-class BaseMonNet(torch.nn.Module, ABC):
-    """ Base class for monotone networks. """
-
-    def __init__(self, in_dim, out_dim, m=1.0, max_iter=100, tol=1e-6):
+    def __init__(self, in_dim, out_dim, max_iter=100, tol=1e-6):
         super().__init__()
         self.in_dim = in_dim
         self.out_dim = out_dim
         self.max_iter = max_iter
         self.tol = tol
-        self.layer = MonLayer(in_dim, out_dim, m)
+        self.layer = BaseLayer(in_dim, out_dim)
     
     @abstractmethod
     def name(self):
