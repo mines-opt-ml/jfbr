@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from abc import ABC, abstractmethod
 from models.base_mon_net import MonLayer, BaseMonNet
-from utils.model_utils import get_norm
+from utils.model_utils import approximate_norm
 
 class ConLayer(MonLayer):
     """ Single contractive layer that computes
@@ -21,7 +21,7 @@ class ConLayer(MonLayer):
         return 'ConLayer'
 
     def forward(self, x, z):
-        W_norm = get_norm(self.W, self.A.out_features)
+        W_norm = approximate_norm(self.W, self.A.out_features)
         return F.relu((self.L / W_norm) * self.W(z) + self.U(x)) 
 
 class BaseConNet(BaseMonNet, ABC):

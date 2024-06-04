@@ -19,8 +19,8 @@ def set_seed(seed):
 #         if m.bias is not None:
 #             torch.nn.init.constant_(m.bias, 0)
 
-def get_norm(W, dim, num_iter=1): 
-    """Power iteration method to compute the norm of matrix W from multiplication only."""
+def approximate_norm(W, dim, num_iter=1): 
+    """Power iteration method to estimate the norm of matrix W with multiplication only."""
     v = torch.randn(dim)
     for _ in range(num_iter-1): 
         v = W(v)
