@@ -23,6 +23,7 @@ print(f'Using device: {device}')
 # Set parameters
 input_dim = 5
 output_dim = 5
+True_Model = FwdStepNetAD
 Models = [FwdStepNetAD]
 loss_function = torch.nn.MSELoss()
 dataset_size = 1024
@@ -37,7 +38,7 @@ seed = 1
 model.set_seed(seed)
 
 # Synthesize and split data, and instantiate data loaders
-data.synthesize_data(MonNetAD, input_dim, output_dim, dataset_size, 'data/dataset.pth')
+data.synthesize_data(True_Model, input_dim, output_dim, dataset_size, 'data/dataset.pth')
 dataset_dict = torch.load('data/dataset.pth')
 X = dataset_dict['X']
 Y = dataset_dict['Y']
