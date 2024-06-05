@@ -8,7 +8,10 @@ class BaseLayer(torch.nn.Module, ABC):
     """ Abstract base class for layer function of implicit network. """
 
     def __init__(self, in_dim, out_dim):
-        super().__init__(in_dim, out_dim)
+        super().__init__()
+        self.in_dim = in_dim
+        self.out_dim = out_dim
+        
         self.A = nn.Linear(out_dim, out_dim, bias=False)
         self.B = nn.Linear(out_dim, out_dim, bias=False)
         self.U = nn.Linear(in_dim, out_dim)
@@ -30,16 +33,36 @@ class BaseNet(torch.nn.Module, ABC):
         self.out_dim = out_dim
         self.max_iter = max_iter
         self.tol = tol
-        self.layer = BaseLayer(in_dim, out_dim)
+        self.layer = None
     
     @abstractmethod
     def name(self):
         pass
 
-    @abstractmethod
     def forward(self, x, z=None):
+        z = torch.zeros(self.out_dim) if z is None else z
+        
+        # Train
+        if self.training:
+            self.forward_train(x, z)
+
+        # Evaluate
+        else:
+            self.forward_eval(x, z)
+    
+    @abstractmethod
+    def forward_train(self, x, z):
         pass
     
+    def forward_eval(self, x, z):
+        for _ in range(self.max_iter):
+            z_new = self.layer(x, z)
+            if torch.norm(z_new - z, p=2) < self.tol:
+                z = z_new
+                break
+            z = z_new
+        return z
+
     def train_step(self, X_batch, Y_batch):
         self.train() 
         z = self.forward(X_batch)

@@ -3,8 +3,8 @@ import torch.utils
 
 import matplotlib.pyplot as plt
 
-from utils import data_utils 
-from utils import model_utils
+from utils import data 
+from utils import model
 
 from models.mon_net_AD import MonNetAD
 from models.mon_net_JFB import MonNetJFB
@@ -14,6 +14,8 @@ from models.mon_net_JFB_CSBO import MonNetJFBCSBO
 from models.con_net_AD import ConNetAD
 from models.con_net_JFB import ConNetJFB
 
+from models.fwd_step_net_AD import FwdStepNetAD
+
 # Check if CUDA is available
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f'Using device: {device}')
@@ -21,9 +23,7 @@ print(f'Using device: {device}')
 # Set parameters
 input_dim = 5
 output_dim = 5
-Models = [MonNetJFB,
-          #ConNetAD,
-          ConNetJFB]
+Models = [FwdStepNetAD]
 loss_function = torch.nn.MSELoss()
 dataset_size = 1024
 train_size = round(0.8 * dataset_size)
@@ -34,10 +34,10 @@ lr = 0.01
 seed = 1
 
 # Set random seed for ground truth model initialization and synthetic data generation
-model_utils.set_seed(seed)
+model.set_seed(seed)
 
 # Synthesize and split data, and instantiate data loaders
-data_utils.synthesize_data(MonNetAD, input_dim, output_dim, dataset_size, 'data/dataset.pth')
+data.synthesize_data(MonNetAD, input_dim, output_dim, dataset_size, 'data/dataset.pth')
 dataset_dict = torch.load('data/dataset.pth')
 X = dataset_dict['X']
 Y = dataset_dict['Y']
@@ -52,7 +52,7 @@ plt.subplots_adjust(wspace=0.4)  # Adjust the width space between the subplot
 
 for Model in Models:
     # Alter random seed for model initialization
-    model_utils.set_seed(seed + 1)
+    model.set_seed(seed + 1)
 
     # Instantiate the model and set the optimizer and loss function
     model = Model(input_dim, output_dim)
