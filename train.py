@@ -3,8 +3,8 @@ import torch.utils
 
 import matplotlib.pyplot as plt
 
-from utils import data 
-from utils import model
+from utils.data import synthesize_data 
+from utils.model import set_seed
 
 from models.mon_net_AD import MonNetAD
 from models.mon_net_JFB import MonNetJFB
@@ -23,8 +23,11 @@ print(f'Using device: {device}')
 # Set parameters
 input_dim = 5
 output_dim = 5
-True_Model = FwdStepNetAD
-Models = [FwdStepNetAD]
+True_Model = MonNetAD
+Models = [MonNetAD,
+          MonNetJFB,
+          MonNetJFBR,
+          MonNetJFBCSBO]
 loss_function = torch.nn.MSELoss()
 dataset_size = 1024
 train_size = round(0.8 * dataset_size)
@@ -35,10 +38,10 @@ lr = 0.01
 seed = 1
 
 # Set random seed for ground truth model initialization and synthetic data generation
-model.set_seed(seed)
+set_seed(seed)
 
 # Synthesize and split data, and instantiate data loaders
-data.synthesize_data(True_Model, input_dim, output_dim, dataset_size, 'data/dataset.pth')
+synthesize_data(True_Model, input_dim, output_dim, dataset_size, 'data/dataset.pth')
 dataset_dict = torch.load('data/dataset.pth')
 X = dataset_dict['X']
 Y = dataset_dict['Y']
@@ -53,12 +56,13 @@ plt.subplots_adjust(wspace=0.4)  # Adjust the width space between the subplot
 
 for Model in Models:
     # Alter random seed for model initialization
-    model.set_seed(seed + 1)
+    set_seed(seed + 1)
 
     # Instantiate the model and set the optimizer and loss function
     model = Model(input_dim, output_dim)
     model.optimizer = torch.optim.SGD(model.parameters(), lr=lr)
     model.criterion = loss_function
+    print(f'{model.max_iter}')
 
     # # Print first input, output, and prediction as numpy arrays
     # print(f'BEFORE TRAINING')

@@ -5,7 +5,7 @@ from models.base_con_net import ConLayer, BaseConNet
 class ConNetAD(BaseConNet):
     """ Monotone network trained using standard automatic differentiation (AD). """
 
-    def __init__(self, in_dim, out_dim, m=1.0, L=0.9, max_iter=100, tol=1e-6):
+    def __init__(self, in_dim, out_dim, m=1.0, L=0.9, max_iter=30, tol=1e-6):
         super().__init__(in_dim, out_dim, m, L, max_iter, tol)
     
     def name(self):

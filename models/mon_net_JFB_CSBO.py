@@ -6,8 +6,8 @@ from models.base_mon_net import MonLayer, BaseMonNet
 class MonNetJFBCSBO(BaseMonNet):
     """ Monotone network trained using JFB and gradient update formula from CSBO. """
 
-    def __init__(self, in_dim, out_dim, m=1.0, max_iter=100, tol=1e-6, decay=0.5):
-        super().__init__(in_dim, out_dim, m, max_iter, tol)
+    def __init__(self, in_dim, out_dim, max_iter, tol, m, decay=0.5):
+        super().__init__(in_dim, out_dim, max_iter, tol, m)
 
         # Initialize propability vector for k, the number of iterations during training
         self.p = torch.tensor([decay**k for k in range(max_iter + 1)]) # geometric decay of probability
@@ -18,40 +18,26 @@ class MonNetJFBCSBO(BaseMonNet):
         return 'MonNetJFBCSBO'
 
     def forward(self, x, z=None):
-        z = torch.zeros(self.out_dim) if z is None else z
+        k = torch.multinomial(self.p, 1).item()
         
-        # Training
-        if self.training:
-            k = torch.multinomial(self.p, 1).item()
-            
-            # Compute z_1 
+        # Compute z_1 
+        z = self.layer(x, z)
+        z_1 = z.clone()
+
+        # Compute z_k
+        if k > 1:
+            with torch.no_grad():
+                for _ in range(k - 2):
+                    z = self.layer(x, z)
             z = self.layer(x, z)
-            z_1 = z.clone()
+        z_k = z.clone()
 
-            # Compute z_k
-            if k > 1:
-                with torch.no_grad():
-                    for _ in range(k - 2):
-                        z = self.layer(x, z)
-                z = self.layer(x, z)
-            z_k = z.clone()
+        # Compute z_{k+1}
+        z.detach()
+        z = self.layer(x, z)
+        z_k_1 = z.clone()
 
-            # Compute z_{k+1}
-            z.detach()
-            z = self.layer(x, z)
-            z_k_1 = z.clone()
-
-            return z_1, z_k, z_k_1, k
-
-        # Evaluation
-        else:
-            for _ in range(self.max_iter):
-                z_new = self.layer(x, z)
-                if torch.norm(z_new - z, p=2) < self.tol:
-                    z = z_new
-                    break
-                z = z_new
-            return z
+        return z_1, z_k, z_k_1, k
     
     def train_step(self, X_batch, Y_batch):
         z_1, z_k, z_k_1, k = self.forward(X_batch)

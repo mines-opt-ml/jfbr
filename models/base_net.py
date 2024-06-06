@@ -27,7 +27,7 @@ class BaseLayer(torch.nn.Module, ABC):
 class BaseNet(torch.nn.Module, ABC):
     """ Base class for implicit networks. """
 
-    def __init__(self, in_dim, out_dim, max_iter=100, tol=1e-6):
+    def __init__(self, in_dim, out_dim, max_iter=10, tol=1e-6):
         super().__init__()
         self.in_dim = in_dim
         self.out_dim = out_dim
