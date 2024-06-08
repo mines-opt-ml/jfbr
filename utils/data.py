@@ -7,7 +7,6 @@ def synthesize_data(True_Model, dataset_size, save_path, config=default_config):
     Model = True_Model['class']
     new_config = True_Model['new_config']
     config = {**default_config, **new_config} 
-
     model = Model(config)
     model.eval() # No need to train
 
