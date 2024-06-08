@@ -3,18 +3,19 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from abc import ABC, abstractmethod
+from utils.config import default_config
 
 class BaseLayer(torch.nn.Module, ABC):
     """ Abstract base class for layer function of implicit network. """
 
-    def __init__(self, in_dim, out_dim):
+    def __init__(self, config=default_config):
         super().__init__()
-        self.in_dim = in_dim
-        self.out_dim = out_dim
+        self.in_dim = config['in_dim']
+        self.out_dim = config['out_dim']
         
-        self.A = nn.Linear(out_dim, out_dim, bias=False)
-        self.B = nn.Linear(out_dim, out_dim, bias=False)
-        self.U = nn.Linear(in_dim, out_dim)
+        self.A = nn.Linear(self.out_dim, self.out_dim, bias=False)
+        self.B = nn.Linear(self.out_dim, self.out_dim, bias=False)
+        self.U = nn.Linear(self.in_dim, self.out_dim)
 
     @abstractmethod
     def name(self):
@@ -27,12 +28,12 @@ class BaseLayer(torch.nn.Module, ABC):
 class BaseNet(torch.nn.Module, ABC):
     """ Base class for implicit networks. """
 
-    def __init__(self, in_dim, out_dim, max_iter=10, tol=1e-6):
+    def __init__(self, config=default_config):
         super().__init__()
-        self.in_dim = in_dim
-        self.out_dim = out_dim
-        self.max_iter = max_iter
-        self.tol = tol
+        self.in_dim = config['in_dim']
+        self.out_dim = config['out_dim']
+        self.max_iter = config['max_iter']
+        self.tol = config['tol']
         self.layer = None
     
     @abstractmethod

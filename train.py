@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 
 from utils.data import synthesize_data 
 from utils.model import set_seed
+from utils.config import default_config
 
 from models.mon_net_AD import MonNetAD
 from models.mon_net_JFB import MonNetJFB
@@ -21,13 +22,12 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f'Using device: {device}')
 
 # Set parameters
-input_dim = 5
-output_dim = 5
-True_Model = MonNetAD
-Models = [MonNetAD,
-          MonNetJFB,
-          MonNetJFBR,
-          MonNetJFBCSBO]
+True_Model = {'class':MonNetAD, 'new_config':{}}
+Models = [
+    {'class':MonNetAD, 'new_config':{}},
+    {'class':MonNetAD, 'new_config':{}},
+    {'class':MonNetAD, 'new_config':{}},
+    {'class':MonNetAD, 'new_config':{}}]
 loss_function = torch.nn.MSELoss()
 dataset_size = 1024
 train_size = round(0.8 * dataset_size)
@@ -41,7 +41,7 @@ seed = 1
 set_seed(seed)
 
 # Synthesize and split data, and instantiate data loaders
-synthesize_data(True_Model, input_dim, output_dim, dataset_size, 'data/dataset.pth')
+synthesize_data(True_Model, dataset_size, 'data/dataset.pth')
 dataset_dict = torch.load('data/dataset.pth')
 X = dataset_dict['X']
 Y = dataset_dict['Y']
@@ -54,12 +54,15 @@ test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, s
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 5))
 plt.subplots_adjust(wspace=0.4)  # Adjust the width space between the subplot
 
-for Model in Models:
+for Model_config in Models:
     # Alter random seed for model initialization
     set_seed(seed + 1)
 
     # Instantiate the model and set the optimizer and loss function
-    model = Model(input_dim, output_dim)
+    Model = Model_config['class']
+    new_config = Model_config['new_config']
+    config = {**default_config, **new_config} # override default config with any new config
+    model = Model(config)
     model.optimizer = torch.optim.SGD(model.parameters(), lr=lr)
     model.criterion = loss_function
     print(f'{model.max_iter}')

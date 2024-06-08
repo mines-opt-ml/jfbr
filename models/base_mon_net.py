@@ -2,8 +2,9 @@ import time
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from models.base_net import BaseLayer, BaseNet
 from abc import ABC, abstractmethod
+from models.base_net import BaseLayer, BaseNet
+from utils.config import default_config
 
 # Based on https://github.com/locuslab/monotone_op_net/blob/master/mon.py
 class MonLayer(BaseLayer):
@@ -15,9 +16,9 @@ class MonLayer(BaseLayer):
         Finding the fixed point of this layer can be done
         with a splitting method.
     """
-    def __init__(self, in_dim, out_dim, m):
-        super().__init__(in_dim, out_dim)
-        self.m = m
+    def __init__(self, config=default_config):
+        super().__init__(config)
+        self.m = config['m']
 
     def name(self):
         return 'MonLayer'
@@ -36,7 +37,7 @@ class BaseMonNet(BaseNet, ABC):
         the paper, which uses splitting methods.
     """
 
-    def __init__(self, in_dim, out_dim, m=1.0):
-        super().__init__(in_dim, out_dim)
-        self.layer = MonLayer(in_dim, out_dim, m)
+    def __init__(self, config=default_config):
+        super().__init__(config)
+        self.layer = MonLayer(config)
     

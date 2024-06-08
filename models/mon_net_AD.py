@@ -1,12 +1,13 @@
 import torch
 import time
 from models.base_mon_net import MonLayer, BaseMonNet
+from utils.config import default_config
 
 class MonNetAD(BaseMonNet):
     """ Monotone network trained using automatic differentiation (AD). """
 
-    def __init__(self, in_dim, out_dim):
-        super().__init__(in_dim, out_dim, m=1.0)
+    def __init__(self, config=default_config):
+        super().__init__(config)
     
     def name(self):
         return 'MonNetAD'

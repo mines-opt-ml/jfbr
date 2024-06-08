@@ -1,13 +1,21 @@
 import torch
+from utils.config import default_config
 
-def synthesize_data(Network, input_dim, output_dim, dataset_size, save_path):
-    """Synthesize data using a given network and save it to a file."""
-    net = Network(input_dim, output_dim)
-    net.eval() # No need to train
+def synthesize_data(True_Model, dataset_size, save_path, config=default_config):
+    """Synthesize data using a given modelwork and save it to a file."""
+
+    Model = True_Model['class']
+    new_config = True_Model['new_config']
+    config = {**default_config, **new_config} 
+
+    model = Model(config)
+    model.eval() # No need to train
 
     # Generate random data
-    X = torch.randn(dataset_size, input_dim)
-    Y = net(X)
+    X = torch.randn(dataset_size, config['in_dim'])
+    Y = model(X)
+    print(f'X: {X.size()}')
+    print(f'Y: {Y.size()}')
 
     # Save the data
     dataset_dict = {'X': X, 'Y': Y}
