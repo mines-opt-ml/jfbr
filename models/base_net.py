@@ -41,27 +41,28 @@ class BaseNet(torch.nn.Module, ABC):
         pass
 
     def forward(self, x, z=None):
-        z = torch.zeros(self.out_dim) if z is None else z
+        z = torch.zeros(x.shape[0], self.out_dim) if z is None else z
         
         # Train
         if self.training:
-            self.forward_train(x, z)
+            return self.forward_train(x, z)
 
         # Evaluate
         else:
-            self.forward_eval(x, z)
+            return self.forward_eval(x, z)
     
     @abstractmethod
     def forward_train(self, x, z):
         pass
     
     def forward_eval(self, x, z):
-        for _ in range(self.max_iter):
-            z_new = self.layer(x, z)
-            if torch.norm(z_new - z, p=2) < self.tol:
+        with torch.no_grad():
+            for _ in range(self.max_iter):
+                z_new = self.layer(x, z)
+                if torch.norm(z_new - z, p=2) < self.tol:
+                    z = z_new
+                    break
                 z = z_new
-                break
-            z = z_new
         return z
 
     def train_step(self, X_batch, Y_batch):

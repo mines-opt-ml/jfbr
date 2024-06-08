@@ -5,6 +5,7 @@ import torch.nn.functional as F
 from abc import ABC, abstractmethod
 from models.base_net import BaseLayer, BaseNet
 from utils.model import approximate_norm
+from utils.config import default_config
 
 class MonLipLayer(BaseLayer):
     """ Layer function for BaseFwdStepNet 
@@ -15,10 +16,10 @@ class MonLipLayer(BaseLayer):
             m = m0 L / ||C||.
     """
     
-    def __init__(self, in_dim, out_dim, m0=0.5, L=1.0):
-        super().__init__(in_dim, out_dim)
-        self.m0 = m0
-        self.L = L
+    def __init__(self, config=default_config):
+        super().__init__(config)
+        self.m0 = config['m0']
+        self.L = config['L']
         self.C_norm_approx = None
         self.m = None
 
@@ -44,7 +45,23 @@ class MonLipLayer(BaseLayer):
 class BaseFwdStepNet(BaseNet, ABC):
     """ Base class for forward step networks. """
 
-    def __init__(self, in_dim, out_dim, max_iter=100, tol=1e-6, m0=0.5, L=1.0):  
-        super().__init__(in_dim, out_dim, max_iter, tol)
-        self.layer = MonLipLayer(in_dim, out_dim, m0, L)
+    def __init__(self, config=default_config):  
+        super().__init__(config)
+        self.layer = MonLipLayer(config)
+
+class FwdStepNetAD(BaseFwdStepNet):
+    """ Forward step network trained via automatic differentation (AD). """
+
+    def __init__(self, config=default_config):
+        super().__init__(config)
+    
+    def name(self):
+        return 'FwdStepNetAD'
+
+    def forward_train(self, x, z):
+        alpha = self.layer.m0 * self.layer.L / self.layer.C_norm_approx
+        for _ in range(self.max_iter):
+            z = z - alpha * self.layer(x, z)
+        return z
+
         

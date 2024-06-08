@@ -7,15 +7,9 @@ from utils.data import synthesize_data
 from utils.model import set_seed
 from utils.config import default_config
 
-from models.mon_net_AD import MonNetAD
-from models.mon_net_JFB import MonNetJFB
-from models.mon_net_JFB_R import MonNetJFBR
-from models.mon_net_JFB_CSBO import MonNetJFBCSBO
-
-from models.con_net_AD import ConNetAD
-from models.con_net_JFB import ConNetJFB
-
-from models.fwd_step_net_AD import FwdStepNetAD
+from models.mon_net import MonNetAD, MonNetJFB, MonNetJFBR, MonNetJFBCSBO
+from models.con_net import ConNetAD, ConNetJFB
+from models.fwd_step_net import FwdStepNetAD
 
 # Check if CUDA is available
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -35,7 +29,7 @@ loss_function = torch.nn.MSELoss()
 dataset_size = 1024
 train_size = round(0.8 * dataset_size)
 test_size = dataset_size - train_size
-max_epochs = 5
+max_epochs = 10
 batch_size = 32
 lr = 0.01
 seed = 1
@@ -68,7 +62,6 @@ for Model_config in Models:
     model = Model(config)
     model.optimizer = torch.optim.SGD(model.parameters(), lr=lr)
     model.criterion = loss_function
-    print(f'{model.max_iter}')
 
     # # Print first input, output, and prediction as numpy arrays
     # print(f'BEFORE TRAINING')

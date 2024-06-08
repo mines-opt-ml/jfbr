@@ -10,11 +10,9 @@ def synthesize_data(True_Model, dataset_size, save_path, config=default_config):
     model = Model(config)
     model.eval() # No need to train
 
-    # Generate random data
+    # # Generate random data
     X = torch.randn(dataset_size, config['in_dim'])
     Y = model(X)
-    print(f'X: {X.size()}')
-    print(f'Y: {Y.size()}')
 
     # Save the data
     dataset_dict = {'X': X, 'Y': Y}
