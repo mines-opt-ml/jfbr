@@ -5,7 +5,7 @@ from models.base_mon_net import MonLayer, BaseMonNet
 class MonNetAD(BaseMonNet):
     """ Monotone network trained using automatic differentiation (AD). """
 
-    def __init__(self, in_dim, out_dim, max_iter, tol, m):
+    def __init__(self, in_dim, out_dim):
         super().__init__(in_dim, out_dim, m=1.0)
     
     def name(self):

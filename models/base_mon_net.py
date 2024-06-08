@@ -7,10 +7,13 @@ from abc import ABC, abstractmethod
 
 # Based on https://github.com/locuslab/monotone_op_net/blob/master/mon.py
 class MonLayer(BaseLayer):
-    """ Single monotone layer that computes
+    """ Single layer that computes
             z_(k+1) = ReLU(W z_k + U x + b)
         where 
             W = (1-m)I - A^T A + B - B^T.
+        The layer is a monotone function composed with ReLU.
+        Finding the fixed point of this layer can be done
+        with a splitting method.
     """
     def __init__(self, in_dim, out_dim, m):
         super().__init__(in_dim, out_dim)
@@ -28,7 +31,10 @@ class MonLayer(BaseLayer):
         return Wz
 
 class BaseMonNet(BaseNet, ABC):
-    """ Base class for monotone networks. """
+    """ Base class for monotone networks, which apply FPI
+        to find the fixed point of the monotone layer, unlike
+        the paper, which uses splitting methods.
+    """
 
     def __init__(self, in_dim, out_dim, m=1.0):
         super().__init__(in_dim, out_dim)
