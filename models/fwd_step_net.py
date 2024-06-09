@@ -64,4 +64,22 @@ class FwdStepNetAD(BaseFwdStepNet):
             z = z - alpha * self.layer(x, z)
         return z
 
+class FwdStepNetJFB(BaseFwdStepNet):
+    """ Forward step network trained via automatic differentation (AD). """
+
+    def __init__(self, config=default_config):
+        super().__init__(config)
+    
+    def name(self):
+        return 'FwdStepNetJFB'
+
+    def forward_train(self, x, z):
+        with torch.no_grad():
+            for _ in range(self.max_iter - 1):
+                z = self.layer(x, z)
+        z = self.layer(x, z)
+        return z
+
+
+
         
