@@ -2,6 +2,7 @@ import time
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.nn.utils.parametrizations import spectral_norm
 from abc import ABC, abstractmethod
 from models.base_net import BaseLayer, BaseNet
 from utils.model import approximate_norm
@@ -27,7 +28,7 @@ class MonLipLayer(BaseLayer):
         return 'MonLipLayer'
 
     def forward(self, x, z):
-        self.C_norm_approx = approximate_norm(self.C, self.out_dim) 
+        self.C_norm_approx, self.v = approximate_norm(self.C, self.v) 
         self.m = (self.m0 * self.L) / self.C_norm_approx
         return (self.L / self.C_norm_approx) * self.C(z) + self.U(x)
 
@@ -65,7 +66,7 @@ class FwdStepNetAD(BaseFwdStepNet):
         return z
 
 class FwdStepNetJFB(BaseFwdStepNet):
-    """ Forward step network trained via automatic differentation (AD). """
+    """ Forward step network trained via Jacobian-free backpropagation (JFB). """
 
     def __init__(self, config=default_config):
         super().__init__(config)
@@ -80,6 +81,9 @@ class FwdStepNetJFB(BaseFwdStepNet):
         z = self.layer(x, z)
         return z
 
-
-
-        
+layer = MonLipLayer()
+x = torch.randn(1, 10)
+z = torch.randn(1, 10)
+for _ in range(10):
+    z = layer(x, z)
+    print(f'C_norm_approx: {layer.C_norm_approx}, m: {layer.m}')        
