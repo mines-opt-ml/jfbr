@@ -89,11 +89,16 @@ class MonNetJFBR(BaseMonNet):
     def forward_train(self, x, z=None):
         k = torch.multinomial(self.p, 1).item()
         
-        with torch.no_grad():
-            for _ in range(k - 1):
-                z = self.layer(x, z)
-            
-        z = self.layer(x, z)
+        for i in range(1,k+1):
+            for j in range(2**i):
+                with torch.no_grad():
+                    z = self.layer(x, z)
+            z = self.layer(x, z)
+        
+        # with torch.no_grad():
+        #     for _ in range(k - 1):
+        #         z = self.layer(x, z)
+        # z = self.layer(x, z)
         return z
     
 # training approach inspired by CSBO paper https://arxiv.org/abs/2310.18535
@@ -113,23 +118,35 @@ class MonNetJFBCSBO(BaseMonNet):
 
     def forward_train(self, x, z):
         k = torch.multinomial(self.p, 1).item()
-        
-        # Compute z_1 
-        z = self.layer(x, z)
-        z_1 = z.clone()
 
-        # Compute z_k
-        if k > 1:
-            with torch.no_grad():
-                for _ in range(k - 2):
+        for i in range(1,k+2):
+            for j in range(2**i):
+                with torch.no_grad():
                     z = self.layer(x, z)
             z = self.layer(x, z)
-        z_k = z.clone()
+            if i == 1:
+                z_1 = z.clone()
+            if i == k:
+                z_k = z.clone()
+            elif i == k+1:
+                z_k_1 = z.clone()
+            
+        # # Compute z_1 
+        # z = self.layer(x, z)
+        # z_1 = z.clone()
 
-        # Compute z_{k+1}
-        z.detach()
-        z = self.layer(x, z)
-        z_k_1 = z.clone()
+        # # Compute z_k
+        # if k > 1:
+        #     with torch.no_grad():
+        #         for _ in range(k - 2):
+        #             z = self.layer(x, z)
+        #     z = self.layer(x, z)
+        # z_k = z.clone()
+
+        # # Compute z_{k+1}
+        # z.detach()
+        # z = self.layer(x, z)
+        # z_k_1 = z.clone()
 
         return z_1, z_k, z_k_1, k
     

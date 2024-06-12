@@ -23,6 +23,7 @@ class MonLipLayer(BaseLayer):
         self.L = config['L']
         self.C_norm_approx = None
         self.m = None
+        self.v = None
 
     def name(self):
         return 'MonLipLayer'
