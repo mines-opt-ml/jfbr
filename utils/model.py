@@ -20,14 +20,14 @@ def set_seed(seed):
 #         if m.bias is not None:
 #             torch.nn.init.constant_(m.bias, 0)
 
-def approximate_norm(W, v, num_iter=1): 
-    """Power iteration method to estimate the norm of matrix W with multiplication only,
-    and without storing computational graph for backpropagation."""
+# def approximate_norm(W, v, num_iter=1): 
+#     """Power iteration method to estimate the norm of matrix W with multiplication only,
+#     and without storing computational graph for backpropagation."""
 
-    with torch.no_grad():
-        for _ in range(num_iter-1): 
-            v = W(v)
-            v = v / torch.norm(v, p=2)
-        v = W(v)
-        norm = torch.norm(v, p=2)
-    return norm, v
+#     with torch.no_grad():
+#         for _ in range(num_iter-1): 
+#             v = W(v)
+#             v = v / torch.norm(v, p=2)
+#         v = W(v)
+#         norm = torch.norm(v, p=2)
+#     return norm, v

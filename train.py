@@ -8,24 +8,24 @@ from utils.model import set_seed
 from utils.config import default_config
 
 from models.mon_net import MonNetAD, MonNetJFB, MonNetJFBR, MonNetJFBCSBO
-from models.con_net import ConNetAD, ConNetJFB
-#from models.fwd_step_net import FwdStepNetAD, FwdStepNetJFB
+#from models.con_net import ConNetAD, ConNetJFB
+from models.fwd_step_net import FwdStepNetAD, FwdStepNetJFB
 
 # Check if CUDA is available
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f'Using device: {device}')
 
 # Set parameters
-True_Model = {'class':MonNetAD, 'new_config':{}}
+True_Model = {'class':FwdStepNetAD, 'new_config':{}}
 Models = [
     {'class':MonNetAD, 'new_config':{}},
-    {'class':MonNetJFB, 'new_config':{}},
-    {'class':MonNetJFBR, 'new_config':{}},
-    {'class':MonNetJFBCSBO, 'new_config':{}}#,
+    # {'class':MonNetJFB, 'new_config':{}},
+    # {'class':MonNetJFBR, 'new_config':{}},
+    # {'class':MonNetJFBCSBO, 'new_config':{}},
     # {'class':ConNetAD, 'new_config':{}},
     # {'class':ConNetJFB, 'new_config':{}},
-    # {'class':FwdStepNetAD, 'new_config':{}},
-    # {'class':FwdStepNetJFB, 'new_config':{}}
+    {'class':FwdStepNetAD, 'new_config':{}}#,
+    #{'class':FwdStepNetJFB, 'new_config':{}}
     ]
 loss_function = torch.nn.MSELoss()
 dataset_size = 1024
@@ -33,7 +33,7 @@ train_size = round(0.8 * dataset_size)
 test_size = dataset_size - train_size
 max_epochs = 100
 batch_size = 32
-lr = 0.1 #0.01
+lr = 1
 seed = 1
 
 # Set random seed for ground truth model initialization and synthetic data generation

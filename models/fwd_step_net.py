@@ -5,44 +5,37 @@ import torch.nn.functional as F
 from torch.nn.utils.parametrizations import spectral_norm
 from abc import ABC, abstractmethod
 from models.base_net import BaseLayer, BaseNet
-from utils.model import approximate_norm
 from utils.config import default_config
 
 class MonLipLayer(BaseLayer):
-    """ Layer function for BaseFwdStepNet 
-            F(z) = (L/||C||) * C z + Ux + b,
-        that is m-strongly monotone and L-Lipschitz, where
-            C = mI + A^T A + B - B^T
-        and
-            m = m0 L / ||C||.
+    """ Layer function 
+            F(z) = C z + Ux + b,
+        where
+            C = mI + A^T A + B - B^T.
+        With this parametrization, F is guaranteed to be m-strongly monotone.
+        Also, using using spectral normalization we approximately 
+        force |A| = |B| = 1 so that F is (m+3)-Lipschitz.
+        Hence (I-alpha F) is contractive if alpha < 2m/L^2 = 2m/(m+3)^2.
     """
     
     def __init__(self, config=default_config):
         super().__init__(config)
-        self.m0 = config['m0']
-        self.L = config['L']
-        self.C_norm_approx = None
-        self.m = None
-        self.v = None
+        self.A = spectral_norm(self.A)
+        self.B = spectral_norm(self.B)
+        self.m = config['m']
+        self.L = config['m'] + 3
+        self.alpha = self.m / self.L**2
 
     def name(self):
         return 'MonLipLayer'
 
-    def forward(self, x, z):
-        self.C_norm_approx, self.v = approximate_norm(self.C, self.v) 
-        self.m = (self.m0 * self.L) / self.C_norm_approx
-        return (self.L / self.C_norm_approx) * self.C(z) + self.U(x)
+    def forward(self, x, z): 
+        return z - self.alpha * (self.C(z) + self.U(x))
 
     def C(self, z):
         ATAz = self.A(z) @ self.A.weight 
-        Cz = self.m0 * z + ATAz + self.B(z) - z @ self.B.weight
+        Cz = self.m * z + ATAz + self.B(z) - z @ self.B.weight
         return Cz
-    
-    def get_alpha(self):
-        if self.C_norm_approx is None :
-            self.C_norm_approx = approximate_norm(self.C, self.out_dim) 
-        alpha = self.m0 / (self.L * self.C_norm_approx)
-        return alpha
 
 class BaseFwdStepNet(BaseNet, ABC):
     """ Base class for forward step networks. """
@@ -50,6 +43,7 @@ class BaseFwdStepNet(BaseNet, ABC):
     def __init__(self, config=default_config):  
         super().__init__(config)
         self.layer = MonLipLayer(config)
+        self.alpha = self.layer.m / (self.layer.m + 3)**2
 
 class FwdStepNetAD(BaseFwdStepNet):
     """ Forward step network trained via automatic differentation (AD). """
@@ -61,9 +55,8 @@ class FwdStepNetAD(BaseFwdStepNet):
         return 'FwdStepNetAD'
 
     def forward_train(self, x, z):
-        alpha = self.layer.m0 * self.layer.L / self.layer.C_norm_approx
         for _ in range(self.max_iter):
-            z = z - alpha * self.layer(x, z)
+            z = self.layer(x, z)
         return z
 
 class FwdStepNetJFB(BaseFwdStepNet):
@@ -76,15 +69,9 @@ class FwdStepNetJFB(BaseFwdStepNet):
         return 'FwdStepNetJFB'
 
     def forward_train(self, x, z):
-        with torch.no_grad():
-            for _ in range(self.max_iter - 1):
+        for _ in range(self.max_iter-1):
+            with torch.no_grad():
                 z = self.layer(x, z)
         z = self.layer(x, z)
         return z
-
-layer = MonLipLayer()
-x = torch.randn(1, 10)
-z = torch.randn(1, 10)
-for _ in range(10):
-    z = layer(x, z)
-    print(f'C_norm_approx: {layer.C_norm_approx}, m: {layer.m}')        
+      
