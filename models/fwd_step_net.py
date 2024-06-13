@@ -8,9 +8,9 @@ from models.base_net import BaseLayer, BaseNet
 from utils.config import default_config
 
 class MonLipLayer(BaseLayer):
-    """ Layer function 
+    """ Layer function (I - alpha F) where 
             F(z) = C z + Ux + b,
-        where
+        and
             C = mI + A^T A + B - B^T.
         With this parametrization, F is guaranteed to be m-strongly monotone.
         Also, using using spectral normalization we approximately 
@@ -29,7 +29,8 @@ class MonLipLayer(BaseLayer):
     def name(self):
         return 'MonLipLayer'
 
-    def forward(self, x, z): 
+    def forward(self, x, z):
+        """ Iteration of contractive layer function (I-alpha F)."""
         return z - self.alpha * (self.C(z) + self.U(x))
 
     def C(self, z):
