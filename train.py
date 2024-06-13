@@ -18,20 +18,20 @@ print(f'Using device: {device}')
 # Set parameters
 True_Model = {'class':FwdStepNetAD, 'new_config':{}}
 Models = [
-    {'class':MonNetAD, 'new_config':{}},
+    #{'class':MonNetAD, 'new_config':{}},
     # {'class':MonNetJFB, 'new_config':{}},
     # {'class':MonNetJFBR, 'new_config':{}},
     # {'class':MonNetJFBCSBO, 'new_config':{}},
     # {'class':ConNetAD, 'new_config':{}},
     # {'class':ConNetJFB, 'new_config':{}},
-    {'class':FwdStepNetAD, 'new_config':{}}#,
-    #{'class':FwdStepNetJFB, 'new_config':{}}
+    {'class':FwdStepNetAD, 'new_config':{}},
+    {'class':FwdStepNetJFB, 'new_config':{}}
     ]
 loss_function = torch.nn.MSELoss()
-dataset_size = 1024
+dataset_size = 5000
 train_size = round(0.8 * dataset_size)
 test_size = dataset_size - train_size
-max_epochs = 100
+max_epochs = 5
 batch_size = 32
 lr = 1
 seed = 1
