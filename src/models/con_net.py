@@ -3,9 +3,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from abc import ABC, abstractmethod
-from models.base_net import BaseLayer, BaseNet
-from utils.model import approximate_norm
-from utils.config import default_config
+
+from src.models.base_net import BaseLayer, BaseNet
+from src.utils.model import approximate_norm
+from src.utils.config import default_config
 
 class ConLayer(BaseLayer):
     """ Single contractive layer that computes

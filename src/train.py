@@ -1,19 +1,17 @@
 import torch
 import torch.utils
-
 import matplotlib.pyplot as plt
 
-from utils.data import synthesize_data 
-from utils.model import set_seed
-from utils.config import default_config
-
-from models.mon_net import MonNetAD, MonNetJFB, MonNetJFBR, MonNetJFBCSBO
+from src.models.mon_net import MonNetAD, MonNetJFB, MonNetJFBR, MonNetJFBCSBO
 #from models.con_net import ConNetAD, ConNetJFB
-from models.fwd_step_net import FwdStepNetAD, FwdStepNetJFB
+from src.models.fwd_step_net import FwdStepNetAD, FwdStepNetJFB
 
-# Check if CUDA is available
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-print(f'Using device: {device}')
+from src.utils.data import synthesize_data 
+from src.utils.model import set_seed
+from src.utils.config import default_config
+from src.utils.device import get_device
+
+device = get_device(verbose=True)
 
 # Set parameters
 True_Model = {'class':FwdStepNetAD, 'new_config':{}}
@@ -117,4 +115,4 @@ ax2.set_yscale('log')
 ax2.legend()
 ax2.grid(True)
 
-plt.savefig(f'results/loss_plot.png', dpi=600)
+plt.savefig(f'outputs/loss_plot.png', dpi=600)

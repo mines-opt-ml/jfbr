@@ -3,7 +3,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from abc import ABC, abstractmethod
-from utils.config import default_config
+
+from src.utils.config import default_config
 
 class BaseLayer(torch.nn.Module, ABC):
     """ Abstract base class for layer function of implicit network. """

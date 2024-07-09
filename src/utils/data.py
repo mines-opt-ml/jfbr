@@ -1,8 +1,8 @@
 import torch
-from utils.config import default_config
+from src.utils.config import default_config
 
 def synthesize_data(True_Model, dataset_size, save_path, config=default_config):
-    """Synthesize data using a given modelwork and save it to a file."""
+    """Synthesize data using a given model and save it to a file."""
 
     Model = True_Model['class']
     new_config = True_Model['new_config']
@@ -10,7 +10,7 @@ def synthesize_data(True_Model, dataset_size, save_path, config=default_config):
     model = Model(config)
     model.eval() # No need to train
 
-    # # Generate random data
+    # Generate random data
     X = torch.randn(dataset_size, config['in_dim'])
     Y = model(X)
 

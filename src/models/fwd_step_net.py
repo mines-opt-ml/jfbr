@@ -4,10 +4,11 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.utils.parametrizations import spectral_norm
 from abc import ABC, abstractmethod
-from models.base_net import BaseLayer, BaseNet
-from utils.config import default_config
 
-class MonLipLayer(BaseLayer):
+from src.models.base_net import BaseLayer, BaseNet
+from src.utils.config import default_config
+
+class FwdStepLayer(BaseLayer):
     """ Layer function (I - alpha F) where 
             F(z) = C z + Ux + b,
         and
@@ -27,7 +28,7 @@ class MonLipLayer(BaseLayer):
         self.alpha = self.m / self.L**2
 
     def name(self):
-        return 'MonLipLayer'
+        return 'FwdStepLayer'
 
     def forward(self, x, z):
         """ Iteration of contractive layer function (I-alpha F)."""
@@ -43,7 +44,7 @@ class BaseFwdStepNet(BaseNet, ABC):
 
     def __init__(self, config=default_config):  
         super().__init__(config)
-        self.layer = MonLipLayer(config)
+        self.layer = FwdStepLayer(config)
         self.alpha = self.layer.m / (self.layer.m + 3)**2
 
 class FwdStepNetAD(BaseFwdStepNet):
