@@ -1,20 +1,10 @@
-# Ignore .DS_Store files created by macOS
-.DS_Store
-
-# Ignore Python virtual environment
+# Ignore local folders
 env/
-
-# Ignore __pycache__ folders
 __pycache__/
 
-# Ignore contents of these folders
-notebooks/* 
-!notebooks/.gitkeep 
+# Ignore contents of certain repo folders
 data/*
-!data/.gitkeep
-results/*
-!results/.gitkeep
+outputs/*
 
-# Ignore folder created by setup.py
-setup.egg-info/
-
+# Ignore local files
+.DS_Store

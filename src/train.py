@@ -16,7 +16,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f'Using device: {device}')
 
 # Set parameters
-True_Model = {'class':MonNetAD, 'new_config':{}}
+True_Model = {'class':FwdStepNetAD, 'new_config':{}}
 Models = [
     # {'class':MonNetAD, 'new_config':{}},
     # {'class':MonNetJFB, 'new_config':{}},

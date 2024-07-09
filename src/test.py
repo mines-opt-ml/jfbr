@@ -16,10 +16,3 @@ import torch.nn.functional as F
 # z = y @ A.weight
 # print(f'{z = }')
 
-# print available torch devices and current device
-print(f'{torch.cuda.is_available() = }')
-print(f'{torch.cuda.current_device() = }')
-print(f'{torch.cuda.device_count() = }')
-print(f'{torch.cuda.get_device_name() = }')
-print(f'{torch.cuda.memory_allocated() = }')
-print(f'{torch.cuda.memory_reserved() = }')
