@@ -4,26 +4,28 @@ import matplotlib.pyplot as plt
 
 from src.models.mon_net import MonNetAD, MonNetJFB, MonNetJFBR, MonNetJFBCSBO
 #from models.con_net import ConNetAD, ConNetJFB
-from src.models.fwd_step_net import FwdStepNetAD, FwdStepNetJFB
+from src.models.fwd_step_net import FwdStepNetAD, FwdStepNetJFB, FwdStepNetJFBR, FwdStepNetCSBO
 
 from src.utils.data import synthesize_data 
-from src.utils.model import set_seed
+from src.utils.seed import set_seed
 from src.utils.config import default_config
 from src.utils.device import get_device
 
 device = get_device(verbose=True)
 
 # Set parameters
-True_Model = {'class':FwdStepNetAD, 'new_config':{}}
+True_Model = {'class':MonNetAD, 'new_config':{}}
 Models = [
-    # {'class':MonNetAD, 'new_config':{}},
-    # {'class':MonNetJFB, 'new_config':{}},
-    # {'class':MonNetJFBR, 'new_config':{}},
-    # {'class':MonNetJFBCSBO, 'new_config':{}},
+    {'class':MonNetAD, 'new_config':{}},
+    {'class':MonNetJFB, 'new_config':{}},
+    {'class':MonNetJFBR, 'new_config':{}},
+    {'class':MonNetJFBCSBO, 'new_config':{}},
     # {'class':ConNetAD, 'new_config':{}},
     # {'class':ConNetJFB, 'new_config':{}},
-    {'class':FwdStepNetAD, 'new_config':{}},
-    {'class':FwdStepNetJFB, 'new_config':{}}
+    # {'class':FwdStepNetAD, 'new_config':{}},
+    # {'class':FwdStepNetJFB, 'new_config':{}},
+    # {'class':FwdStepNetJFBR, 'new_config':{}},
+    # {'class':FwdStepNetCSBO, 'new_config':{}}
     ]
 loss_function = torch.nn.MSELoss()
 dataset_size = 5000
@@ -62,13 +64,6 @@ for Model_config in Models:
     model = Model(config)
     model.optimizer = torch.optim.SGD(model.parameters(), lr=lr)
     model.criterion = loss_function
-
-    # # Print first input, output, and prediction as numpy arrays
-    # print(f'BEFORE TRAINING')
-    # print(f'X[0]: {X[0].detach().numpy()}')
-    # print(f'Y[0]: {Y[0].detach().numpy()}')
-    # model.eval()
-    # print(f'model(X[0]): {model(X[0]).detach().numpy()}')
 
     # Check for NaNs in parameters before training
     for name, param in model.named_parameters():

@@ -5,6 +5,7 @@ import torch.nn.functional as F
 from torch.nn.utils.parametrizations import spectral_norm
 from abc import ABC, abstractmethod
 
+from src.models.training_methods import TrainAD, TrainJFB, TrainJFBR, TrainCSBO
 from src.models.base_net import BaseLayer, BaseNet
 from src.utils.config import default_config
 
@@ -47,7 +48,7 @@ class BaseFwdStepNet(BaseNet, ABC):
         self.layer = FwdStepLayer(config)
         self.alpha = self.layer.m / (self.layer.m + 3)**2
 
-class FwdStepNetAD(BaseFwdStepNet):
+class FwdStepNetAD(TrainAD, BaseFwdStepNet):
     """ Forward step network trained via automatic differentation (AD). """
 
     def __init__(self, config=default_config):
@@ -56,12 +57,7 @@ class FwdStepNetAD(BaseFwdStepNet):
     def name(self):
         return 'FwdStepNetAD'
 
-    def forward_train(self, x, z):
-        for _ in range(self.max_iter):
-            z = self.layer(x, z)
-        return z
-
-class FwdStepNetJFB(BaseFwdStepNet):
+class FwdStepNetJFB(TrainJFB, BaseFwdStepNet):
     """ Forward step network trained via Jacobian-free backpropagation (JFB). """
 
     def __init__(self, config=default_config):
@@ -70,10 +66,30 @@ class FwdStepNetJFB(BaseFwdStepNet):
     def name(self):
         return 'FwdStepNetJFB'
 
-    def forward_train(self, x, z):
-        for _ in range(self.max_iter-1):
-            with torch.no_grad():
-                z = self.layer(x, z)
-        z = self.layer(x, z)
-        return z
-      
+class FwdStepNetJFBR(TrainJFBR, BaseFwdStepNet):
+    """ Forward step network trained via JFB with random number of iterations.  """
+
+    def __init__(self, config=default_config):
+        super().__init__(config)
+
+        # Initialize probability vector for k, the number of iterations during training
+        self.p = torch.tensor([config['decay']**k for k in range(config['max_iter'] + 1)]) # geometric decay of probability
+        self.p[0] = 0 # k=0 is not allowed
+        self.p = self.p / torch.sum(self.p) # normalize
+    
+    def name(self):
+        return 'FwdStepNetJFBR'
+    
+class FwdStepNetCSBO(TrainCSBO, BaseFwdStepNet):
+    """ Forward step network trained via JFB with random number of iterations.  """
+
+    def __init__(self, config=default_config):
+        super().__init__(config)
+
+        # Initialize probability vector for k, the number of iterations during training
+        self.p = torch.tensor([config['decay']**k for k in range(config['max_iter'] + 1)]) # geometric decay of probability
+        self.p[0] = 0 # k=0 is not allowed
+        self.p = self.p / torch.sum(self.p) # normalize
+    
+    def name(self):
+        return 'FwdStepNetCSBO'

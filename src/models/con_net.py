@@ -5,7 +5,7 @@ import torch.nn.functional as F
 from abc import ABC, abstractmethod
 
 from src.models.base_net import BaseLayer, BaseNet
-from src.utils.model import approximate_norm
+from src.utils.seed import approximate_norm
 from src.utils.config import default_config
 
 class ConLayer(BaseLayer):

@@ -5,6 +5,7 @@ import torch.nn.functional as F
 from abc import ABC, abstractmethod
 
 from src.models.base_net import BaseLayer, BaseNet
+from src.models.training_methods import TrainAD, TrainJFB, TrainJFBR, TrainCSBO
 from src.utils.config import default_config
 
 # Based on https://github.com/locuslab/monotone_op_net/blob/master/mon.py
@@ -42,7 +43,7 @@ class BaseMonNet(BaseNet, ABC):
         super().__init__(config)
         self.layer = MonLayer(config)
 
-class MonNetAD(BaseMonNet):
+class MonNetAD(TrainAD, BaseMonNet):
     """ Monotone network trained using automatic differentiation (AD). """
 
     def __init__(self, config=default_config):
@@ -50,13 +51,8 @@ class MonNetAD(BaseMonNet):
     
     def name(self):
         return 'MonNetAD'
-
-    def forward_train(self, x, z):
-        for _ in range(self.max_iter):
-            z = self.layer(x, z)
-        return z
     
-class MonNetJFB(BaseMonNet):
+class MonNetJFB(TrainJFB, BaseMonNet):
     """ Monotone network trained using Jacobian free backpropagation (JFB). """
 
     def __init__(self, config=default_config):
@@ -64,16 +60,8 @@ class MonNetJFB(BaseMonNet):
     
     def name(self):
         return 'MonNetJFB'
-
-    def forward_train(self, x, z):
-        with torch.no_grad():
-            for _ in range(self.max_iter - 1):
-                z = self.layer(x, z)
-            
-        z = self.layer(x, z)
-        return z
     
-class MonNetJFBR(BaseMonNet):
+class MonNetJFBR(TrainJFBR, BaseMonNet):
     """ Monotone network trained using JFB and random selection of number of iterations. """
 
     def __init__(self, config=default_config):
@@ -86,24 +74,8 @@ class MonNetJFBR(BaseMonNet):
     
     def name(self):
         return 'MonNetJFBR'
-
-    def forward_train(self, x, z=None):
-        k = torch.multinomial(self.p, 1).item()
-        
-        for i in range(1,k+1):
-            for j in range(2**i):
-                with torch.no_grad():
-                    z = self.layer(x, z)
-            z = self.layer(x, z)
-        
-        # with torch.no_grad():
-        #     for _ in range(k - 1):
-        #         z = self.layer(x, z)
-        # z = self.layer(x, z)
-        return z
     
-# training approach inspired by CSBO paper https://arxiv.org/abs/2310.18535
-class MonNetJFBCSBO(BaseMonNet):
+class MonNetJFBCSBO(TrainCSBO, BaseMonNet):
     """ Monotone network trained using JFB and gradient update formula from CSBO. """
 
     def __init__(self, config=default_config):
@@ -116,51 +88,3 @@ class MonNetJFBCSBO(BaseMonNet):
     
     def name(self):
         return 'MonNetJFBCSBO'
-
-    def forward_train(self, x, z):
-        k = torch.multinomial(self.p, 1).item()
-
-        for i in range(1,k+2):
-            for j in range(2**i):
-                with torch.no_grad():
-                    z = self.layer(x, z)
-            z = self.layer(x, z)
-            if i == 1:
-                z_1 = z.clone()
-            if i == k:
-                z_k = z.clone()
-            elif i == k+1:
-                z_k_1 = z.clone()
-            
-        # # Compute z_1 
-        # z = self.layer(x, z)
-        # z_1 = z.clone()
-
-        # # Compute z_k
-        # if k > 1:
-        #     with torch.no_grad():
-        #         for _ in range(k - 2):
-        #             z = self.layer(x, z)
-        #     z = self.layer(x, z)
-        # z_k = z.clone()
-
-        # # Compute z_{k+1}
-        # z.detach()
-        # z = self.layer(x, z)
-        # z_k_1 = z.clone()
-
-        return z_1, z_k, z_k_1, k
-    
-    def train_step(self, X_batch, Y_batch):
-        z_1, z_k, z_k_1, k = self.forward(X_batch)
-        
-        loss_1 = self.criterion(z_1, Y_batch)
-        loss_k = self.criterion(z_k, Y_batch)
-        loss_k_1 = self.criterion(z_k_1, Y_batch)
-        loss = loss_1 + 1/self.p[k] * (loss_k_1 - loss_k)
-        #print(f'k: {k}, loss: {loss.item()}')
-        
-        self.optimizer.zero_grad()
-        loss.backward()
-        self.optimizer.step()
-    

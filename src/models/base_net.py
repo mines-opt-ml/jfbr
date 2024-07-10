@@ -52,9 +52,8 @@ class BaseNet(torch.nn.Module, ABC):
         else:
             return self.forward_eval(x, z)
     
-    @abstractmethod
     def forward_train(self, x, z):
-        pass
+        raise NotImplementedError("Subclasses should implement this method.")
     
     def forward_eval(self, x, z):
         with torch.no_grad():
