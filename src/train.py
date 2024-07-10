@@ -14,7 +14,7 @@ from src.utils.device import get_device
 device = get_device(verbose=True)
 
 # Set parameters
-True_Model = {'class':MonNetAD, 'new_config':{}}
+True_Model = {'class':FwdStepNetAD, 'new_config':{}}
 Models = [
     # {'class':MonNetAD, 'new_config':{}},
     # {'class':MonNetJFB, 'new_config':{}},
@@ -22,16 +22,20 @@ Models = [
     # {'class':MonNetJFBCSBO, 'new_config':{}},
     # {'class':ConNetAD, 'new_config':{}},
     # {'class':ConNetJFB, 'new_config':{}},
-    {'class':FwdStepNetAD, 'new_config':{}},
+    # {'class':FwdStepNetAD, 'new_config':{}},
     {'class':FwdStepNetJFB, 'new_config':{}},
-    {'class':FwdStepNetJFBR, 'new_config':{}},
-    {'class':FwdStepNetCSBO, 'new_config':{}}
+    {'class':FwdStepNetJFBR, 'new_config':{'decay':2}},
+    {'class':FwdStepNetJFBR, 'new_config':{'decay':1.25}},
+    {'class':FwdStepNetJFBR, 'new_config':{'decay':1.0}},
+    {'class':FwdStepNetJFBR, 'new_config':{'decay':0.75}},
+    {'class':FwdStepNetJFBR, 'new_config':{'decay':0.5}},
+    # {'class':FwdStepNetCSBO, 'new_config':{}}
     ]
 loss_function = torch.nn.MSELoss()
 dataset_size = 5000
 train_size = round(0.8 * dataset_size)
 test_size = dataset_size - train_size
-max_epochs = 50
+max_epochs = 30
 batch_size = 32
 lr = 1
 seed = 2
@@ -69,7 +73,6 @@ for Model_config in Models:
     for name, param in model.named_parameters():
         if torch.isnan(param).any():
             print(f'NaN detected in parameter {name} before training.')
-
 
     # # Determine why the model is outputing nan
     # for param in model.parameters():

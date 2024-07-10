@@ -7,7 +7,7 @@ def get_device(verbose=False):
     
     # CUDA
     if torch.cuda.is_available():
-        preferred_cuda = default_config['preferred-cuda']
+        preferred_cuda = default_config['preferred_cuda']
         if preferred_cuda in [f'cuda:{i}' for i in range(torch.cuda.device_count())]: 
             device = torch.device(preferred_cuda)
         else:

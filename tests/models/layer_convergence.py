@@ -13,7 +13,7 @@ m = default_config['m']
 max_iter = 200
 num_sequences = 10
 
-# Set seed and initialize MonLipLayer and input x
+# Set seed and initialize FwdStepLayer and input x
 set_seed(0)
 model = FwdStepLayer()
 model.eval()
@@ -48,7 +48,7 @@ plt.xlabel('Iteration')
 plt.xlim(0, max_iter)
 
 plt.ylabel('Normed Difference')
-#plt.yscale('log')
+plt.yscale('log')
 
 # Adjust the figure to make space for the legend
 plt.subplots_adjust(right=0.75)
@@ -56,4 +56,4 @@ plt.subplots_adjust(right=0.75)
 # Place the legend outside the plot
 plt.legend(loc='center left', bbox_to_anchor=(1, 0.5), title='Seed')
 
-plt.savefig('outputs/mon_lip_layer_convergence.png', dpi=600)
+plt.savefig(f'outputs/{model.name()}_convergence.png', dpi=600)

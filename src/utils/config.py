@@ -1,6 +1,8 @@
 default_config = {
-    'in_dim': 20,
-    'out_dim': 20,
+    'preferred_cuda': 1,
+
+    'in_dim': 5,
+    'out_dim': 10,
     'max_iter': 10,
     'tol':1e-6,
     'm':1,
