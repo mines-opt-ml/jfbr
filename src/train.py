@@ -16,16 +16,16 @@ device = get_device(verbose=True)
 # Set parameters
 True_Model = {'class':MonNetAD, 'new_config':{}}
 Models = [
-    {'class':MonNetAD, 'new_config':{}},
-    {'class':MonNetJFB, 'new_config':{}},
-    {'class':MonNetJFBR, 'new_config':{}},
-    {'class':MonNetJFBCSBO, 'new_config':{}},
+    # {'class':MonNetAD, 'new_config':{}},
+    # {'class':MonNetJFB, 'new_config':{}},
+    # {'class':MonNetJFBR, 'new_config':{}},
+    # {'class':MonNetJFBCSBO, 'new_config':{}},
     # {'class':ConNetAD, 'new_config':{}},
     # {'class':ConNetJFB, 'new_config':{}},
-    # {'class':FwdStepNetAD, 'new_config':{}},
-    # {'class':FwdStepNetJFB, 'new_config':{}},
-    # {'class':FwdStepNetJFBR, 'new_config':{}},
-    # {'class':FwdStepNetCSBO, 'new_config':{}}
+    {'class':FwdStepNetAD, 'new_config':{}},
+    {'class':FwdStepNetJFB, 'new_config':{}},
+    {'class':FwdStepNetJFBR, 'new_config':{}},
+    {'class':FwdStepNetCSBO, 'new_config':{}}
     ]
 loss_function = torch.nn.MSELoss()
 dataset_size = 5000
