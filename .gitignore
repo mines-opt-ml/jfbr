@@ -5,6 +5,7 @@ __pycache__/
 # Ignore contents of certain repo folders
 data/*
 outputs/*
+!outputs/.gitkeep
 
 # Ignore local files
 .DS_Store
