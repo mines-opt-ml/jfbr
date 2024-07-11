@@ -32,9 +32,9 @@ class FwdStepLayer(BaseLayer):
         return 'FwdStepLayer'
 
     def forward(self, x, z):
-        """ Iteration of contractive layer function (I-alpha F)."""
-        return z - self.alpha * (self.C(z) + self.U(x))
-
+        """ Iteration of contractive layer function (I - alpha F)."""
+        return z - self.alpha * (self.C(z) + self.U(x)) 
+    
     def C(self, z):
         ATAz = self.A(z) @ self.A.weight 
         Cz = self.m * z + ATAz + self.B(z) - z @ self.B.weight

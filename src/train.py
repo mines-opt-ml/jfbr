@@ -22,20 +22,16 @@ Models = [
     # {'class':MonNetJFBCSBO, 'new_config':{}},
     # {'class':ConNetAD, 'new_config':{}},
     # {'class':ConNetJFB, 'new_config':{}},
-    # {'class':FwdStepNetAD, 'new_config':{}},
+    {'class':FwdStepNetAD, 'new_config':{}},
     {'class':FwdStepNetJFB, 'new_config':{}},
-    {'class':FwdStepNetJFBR, 'new_config':{'decay':2}},
-    {'class':FwdStepNetJFBR, 'new_config':{'decay':1.25}},
-    {'class':FwdStepNetJFBR, 'new_config':{'decay':1.0}},
-    {'class':FwdStepNetJFBR, 'new_config':{'decay':0.75}},
-    {'class':FwdStepNetJFBR, 'new_config':{'decay':0.5}},
-    # {'class':FwdStepNetCSBO, 'new_config':{}}
+    #{'class':FwdStepNetJFBR, 'new_config':{'decay':1.1}},
+    #{'class':FwdStepNetCSBO, 'new_config':{}}
     ]
 loss_function = torch.nn.MSELoss()
-dataset_size = 5000
+dataset_size = 10000
 train_size = round(0.8 * dataset_size)
 test_size = dataset_size - train_size
-max_epochs = 30
+max_epochs = 10
 batch_size = 32
 lr = 1
 seed = 2
