@@ -103,7 +103,7 @@ class BaseNet(torch.nn.Module, ABC):
                 times.append(time.time() - start_time)
                 test_losses.append(test_loss)
 
-            print(f'Model: {self.name()}, Epoch: {epoch+1}/{max_epochs}, Test Loss: {test_loss:.5f}, Time: {time.time() - start_time:.1f} s')
+            print(f'Model: {self.name()}, Epoch: {epoch+1}/{max_epochs}, Test Loss: {test_loss:.2e}, Time: {time.time() - start_time:.1f} s')
 
         if test_loader is not None:
             return epochs, times, test_losses

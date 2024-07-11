@@ -17,7 +17,7 @@ class FwdStepLayer(BaseLayer):
         With this parametrization, F is guaranteed to be m-strongly monotone.
         Also, using using spectral normalization we approximately 
         force |A| = |B| = 1 so that F is (m+3)-Lipschitz.
-        Hence (I-alpha F) is contractive if alpha < 2m/L^2 = 2m/(m+3)^2.
+        Hence (I - alpha F) is contractive if alpha < 2m/L^2 = 2m/(m+3)^2.
     """
     
     def __init__(self, config=default_config):

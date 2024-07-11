@@ -33,8 +33,8 @@ train_size = round(0.8 * dataset_size)
 test_size = dataset_size - train_size
 max_epochs = 10
 batch_size = 32
-lr = 1
-seed = 2
+lr = 10
+seed = 0
 
 # Set random seed for ground truth model initialization and synthetic data generation
 set_seed(seed)
