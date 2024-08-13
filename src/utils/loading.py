@@ -9,6 +9,9 @@ def load_data(dataset_type):
     Get and save data and return train and test data loaders for a synthetic, MNIST, SVHN, or CIFAR-10 dataset.
     """
     
+    train_dataset = None
+    test_dataset = None
+    
     if dataset_type == 'synthetic':
         pass  #TODO: Implement synthetic data generation
     
