@@ -1,12 +1,4 @@
-# Ignore local folders
-env/
-__pycache__/
-
-# Ignore contents of certain repo folders
-# data/*
-# !outputs/.gitkeep
-# outputs/*
-# !outputs/.gitkeep
-
-# Ignore local files
+data/*
+env
+__pycache__
 .DS_Store

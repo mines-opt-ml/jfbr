@@ -15,7 +15,7 @@ class FwdStepLayer(BaseLayer):
         and
             C = mI + A^T A + B - B^T.
         With this parametrization, F is guaranteed to be m-strongly monotone.
-        Also, using using spectral normalization we approximately 
+        Also, using spectral normalization we approximately 
         force |A| = |B| = 1 so that F is (m+3)-Lipschitz.
         Hence (I - alpha F) is contractive if alpha < 2m/L^2 = 2m/(m+3)^2.
     """
@@ -40,7 +40,7 @@ class FwdStepLayer(BaseLayer):
         Cz = self.m * z + ATAz + self.B(z) - z @ self.B.weight
         return Cz
 
-class BaseFwdStepNet(BaseNet, ABC):
+class BaseFwdStepNet(BaseNet):
     """ Base class for forward step networks. """
 
     def __init__(self, config=default_config):  
@@ -81,7 +81,7 @@ class FwdStepNetJFBR(TrainJFBR, BaseFwdStepNet):
         return 'FwdStepNetJFBR'
     
 class FwdStepNetCSBO(TrainCSBO, BaseFwdStepNet):
-    """ Forward step network trained via JFB with random number of iterations.  """
+    """ Forward step network trained via method inspired by CSBO paper.  """
 
     def __init__(self, config=default_config):
         super().__init__(config)

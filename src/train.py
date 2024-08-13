@@ -2,11 +2,8 @@ import torch
 import torch.utils
 import matplotlib.pyplot as plt
 
-from src.models.mon_net import MonNetAD, MonNetJFB, MonNetJFBR, MonNetJFBCSBO
-#from models.con_net import ConNetAD, ConNetJFB
 from src.models.fwd_step_net import FwdStepNetAD, FwdStepNetJFB, FwdStepNetJFBR, FwdStepNetCSBO
-
-from src.utils.data import synthesize_data 
+from src.utils.loading import synthesize_data 
 from src.utils.seed import set_seed
 from src.utils.config import default_config
 from src.utils.device import get_device
@@ -16,16 +13,10 @@ device = get_device(verbose=True)
 # Set parameters
 True_Model = {'class':FwdStepNetAD, 'new_config':{}}
 Models = [
-    # {'class':MonNetAD, 'new_config':{}},
-    # {'class':MonNetJFB, 'new_config':{}},
-    # {'class':MonNetJFBR, 'new_config':{}},
-    # {'class':MonNetJFBCSBO, 'new_config':{}},
-    # {'class':ConNetAD, 'new_config':{}},
-    # {'class':ConNetJFB, 'new_config':{}},
     {'class':FwdStepNetAD, 'new_config':{}},
     {'class':FwdStepNetJFB, 'new_config':{}},
-    #{'class':FwdStepNetJFBR, 'new_config':{'decay':1.1}},
-    #{'class':FwdStepNetCSBO, 'new_config':{}}
+    {'class':FwdStepNetJFBR, 'new_config':{}},
+    {'class':FwdStepNetCSBO, 'new_config':{}}
     ]
 loss_function = torch.nn.MSELoss()
 dataset_size = 10000

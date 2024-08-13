@@ -13,10 +13,6 @@ class BaseLayer(torch.nn.Module, ABC):
         super().__init__()
         self.in_dim = config['in_dim']
         self.out_dim = config['out_dim']
-        
-        self.A = nn.Linear(self.out_dim, self.out_dim, bias=False)
-        self.B = nn.Linear(self.out_dim, self.out_dim, bias=False)
-        self.U = nn.Linear(self.in_dim, self.out_dim)
 
     @abstractmethod
     def name(self):
@@ -56,6 +52,7 @@ class BaseNet(torch.nn.Module, ABC):
         raise NotImplementedError("Subclasses should implement this method.")
     
     def forward_eval(self, x, z):
+        """ Fixed point iteration until maximum iterations or convergence within tolerance. """
         with torch.no_grad():
             for _ in range(self.max_iter):
                 z_new = self.layer(x, z)

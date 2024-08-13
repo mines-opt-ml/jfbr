@@ -28,7 +28,7 @@ class TrainCSBO:
     def forward_train(self, x, z):
         k = torch.multinomial(self.p, 1).item()
         for i in range(1,k+2):
-            for j in range(2**i):
+            for _ in range(1,2**i):
                 with torch.no_grad():
                     z = self.layer(x, z)
             z = self.layer(x, z)
